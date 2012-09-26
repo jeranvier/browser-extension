@@ -30,6 +30,14 @@ mem0r1es.init = function(){
 			}
 			return true; // the listener must return true if the response needs to be sent asynchronously
 	});
+	
+	/*Send a message to a tab
+	 */
+	mem0r1es.sendMessage = function(tabId, message, callback){
+		chrome.tabs.sendMessage(tabId, message, function(response){
+			callback(response);
+		});
+	}
 }
 
 mem0r1es.init();

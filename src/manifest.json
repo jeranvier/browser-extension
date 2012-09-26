@@ -1,15 +1,21 @@
 {
-  "name": "mem0r1es",
-  "version": "0.1",
-  "background": { "scripts": ["js/storageManager.js", "js/button.js", "js/networkListener.js", "js/navigationListener.js", "js/background.js"] },
-  "permissions": [
-    "tabs", "*://*/*",
-	"webRequest", "*://*/*",
-	"webNavigation"
-  ],
-  "browser_action": {
-      "name": "mem0r1es",
-	  "default_popup": "html/popup.html"
-  },
-  "manifest_version": 2
+	"name": "mem0r1es",
+	"version": "0.1",
+	"background": { "scripts": ["js/storageManager.js", "js/button.js", "js/networkListener.js", "js/navigationListener.js", "js/background.js"] },
+	"permissions": [
+		"tabs", "*://*/*",
+		"webRequest", "*://*/*",
+		"webNavigation"
+	],
+	"browser_action": {
+		"name": "mem0r1es",
+		"default_popup": "html/popup.html"
+	},
+	"content_scripts": [
+		{
+			"matches": ["*://*/*"],
+			"js": ["js/injectable.js"]
+		}
+	],
+	"manifest_version": 2
 }
