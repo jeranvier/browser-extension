@@ -24,7 +24,7 @@ window.mem0r1es.benchmark.populate = () ->
   console.log "populating the database with #{mem0r1es.benchmark.cardinality} elements"
   for i in [0 .. mem0r1es.benchmark.cardinality-1] by 1
     data =
-      'a': new Date().getTime()
+      'a': i
       'b': Math.floor(Math.random()*10)
       'c': Math.floor(Math.random()*10)
       'd': Math.floor(Math.random()*10)
@@ -36,7 +36,7 @@ window.mem0r1es.benchmark.populate = () ->
       'j': mem0r1es.benchmark.stringGenerator 10
       'k': mem0r1es.benchmark.stringGenerator 2000
       'l': mem0r1es.benchmark.stringGenerator 2000
-    mem0r1es.benchmark.storageManager.store "temporary", data, () ->
+    mem0r1es.benchmark.storageManager.store "temporary", data, (result) ->
       mem0r1es.benchmark.currentCardinality++
   return  
 
@@ -54,7 +54,7 @@ beforeAll () ->
       mem0r1es.benchmark.currentCardinality is mem0r1es.benchmark.cardinality
     , () ->
       console.log "Time to generate items and populate the DB with #{mem0r1es.benchmark.cardinality} items : #{new Date().getTime() - startPopulate} ms"
-      window.beforeAll_done = true;
+      window.beforeAll_done = true 
 
 #############
 
@@ -63,7 +63,7 @@ describe 'IndexDB Fetching schemes', ->
   it 'fetch by index', ->
     start = new Date().getTime()
     runs () ->
-      query = new mem0r1es.Query().from("temporary").where("b", "equals", 5)
+      query = new mem0r1es.Query().from("temporary").where("b", "greaterThan", 5, true)
       mem0r1es.benchmark.storageManager.get query , (results) =>
         console.log "Time to run 'fetch by index' : #{new Date().getTime() - start} ms. retreived #{results.length} results"
         console.log results
@@ -76,7 +76,7 @@ describe 'IndexDB Fetching schemes', ->
     runs () ->
       query = new mem0r1es.Query().from("temporary").where("b", "equals", 5).and("c", "greaterThan", 3)
       mem0r1es.benchmark.storageManager.get query, (results) =>
-        console.log "Time to run 'fetch by two indexes' : #{new Date().getTime() - start} ms. retreived #{results.length} results"
+        console.log "Time to run 'fetch by index and 1 condition' : #{new Date().getTime() - start} ms. retreived #{results.length} results"
         console.log results
         return
       return
@@ -87,7 +87,18 @@ describe 'IndexDB Fetching schemes', ->
     runs () ->
       query = new mem0r1es.Query().from("temporary").where("b", "equals", 5).and("c", "greaterThan", 3).and("d", "lowerThan", 8)
       mem0r1es.benchmark.storageManager.get query, (results) =>
-        console.log "Time to run 'fetch by three indexes' : #{new Date().getTime() - start} ms. retreived #{results.length} results"
+        console.log "Time to run 'fetch by index and 2 conditions' : #{new Date().getTime() - start} ms. retreived #{results.length} results"
+        console.log results
+        return
+      return
+    return
+    
+  it 'fetch by PK', ->
+    start = new Date().getTime()
+    runs () ->
+      query = new mem0r1es.Query().from("temporary").where("a", "greaterThan", 0)
+      mem0r1es.benchmark.storageManager.get query, (results) =>
+        console.log "Time to run 'fetch by primary key' : #{new Date().getTime() - start} ms. retreived #{results.length} results"
         console.log results
         return
       return
