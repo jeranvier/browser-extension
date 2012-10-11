@@ -7,8 +7,8 @@ mem0r1es.injectable.DOMtoJSON = (node)->
   JSONNode.attributes = {}
   DOMAttributes = node.attributes
   for i in [0 .. DOMAttributes.length-1] by 1
-    JSONNode.attributes[DOMAttributes[i].name] = DOMAttributes[i].value;
-
+    JSONNode.attributes[DOMAttributes[i].name] = DOMAttributes[i].value
+  JSONNode.style = node.getAttribute "style"
   if JSONNode.attributes.length is 0
     delete JSONNode.attributes
   
@@ -23,16 +23,15 @@ mem0r1es.injectable.DOMtoJSON = (node)->
   JSONNode
 
 mem0r1es.injectable.sendMessage = (module, message, callback)->
-  chrome.extension.sendMessage {module:module, message:message},(response)->
-    if callback?
-      callback response
-    return
+  if chrome.extension?
+    chrome.extension.sendMessage {module:module, message:message},(response)->
+      if callback?
+        callback response
+      return
   return
 
 mem0r1es.injectable.clickListener = (event) ->
-  console.log @
   return
 
 mem0r1es.injectable.sendMessage "navigationListener", {title : "DOMtoJSON" , content : mem0r1es.injectable.DOMtoJSON document.getElementsByTagName("html")[0]}
-
 #document.getElementsByTagName("html")[0].addEventListener "click", mem0r1es.injectable.clickListener, false
