@@ -1,20 +1,20 @@
 window.mem0r1es = {} if not window.mem0r1es?
-window.indexedDB = window.webkitIndexedDB
-window.IDBTransaction = window.webkitIDBTransaction
-window.IDBKeyRange =window.webkitIDBKeyRange
+window.indexedDB = window.indexedDB or window.webkitIndexedDB or window.mozIndexedDB or window.msIndexedDB
+window.IDBTransaction = window.IDBTransaction or window.webkitIDBTransaction or window.mozIDBTransaction or window.msIDBTransaction
 
 class window.mem0r1es.StorageManager
-  @db=null
-  @version=null
-  @ready=false
+
+  constructor : () ->
+    @db = null
+    @dbName = "mem0r1es"
+    @version =  1
+    @ready = false
   
-  openDB: () ->
-    request = indexedDB.open "mem0r1es"
-    request.onsuccess = (event) =>
+  openDB : () ->
+    request = indexedDB.open @dbName
+    request.onsuccess = (event) =>      
       @db = event.target.result
-      @version = 2
       @checkVersion()
-      @ready = true
       return
       
     request.onfailure = @onerror
@@ -26,22 +26,32 @@ class window.mem0r1es.StorageManager
       setVersionrequest.onfailure = @onerror;
       
       setVersionrequest.onsuccess = (event) =>
-        console.log "creating/updating data store"
-        temporary = @db.createObjectStore "temporary", { autoIncrement: true }
-        consolidated = @db.createObjectStore "consolidated", { autoIncrement: true }
-        #store.createIndex("abc", "abc", { unique: false })
-        
-        event.target.transaction.oncomplete = () ->
-          console.log "data store created"
+        console.log "creating/updating database #{@dbName}"
+        temporary = @db.createObjectStore "temporary", { keyPath: "a" }
+        consolidated = @db.createObjectStore "consolidated", { keyPath: "a" }
+        temporary.createIndex("b", "b", { unique: false })
+        temporary.createIndex("c", "c", { unique: false })
+        temporary.createIndex("d", "d", { unique: false })
+        temporary.createIndex("e", "e", { unique: false })
+        temporary.createIndex("f", "f", { unique: false })
+        temporary.createIndex("g", "g", { unique: false })
+        temporary.createIndex("h", "h", { unique: false })
+        temporary.createIndex("i", "i", { unique: false })
+        temporary.createIndex("j", "j", { unique: false })
+        temporary.createIndex("k", "k", { unique: false })
+        temporary.createIndex("l", "l", { unique: false })
+       
+        event.target.transaction.oncomplete = () =>
+          console.log "database created and ready"
+          @ready = true
           return
           
         event.target.transaction.onerror = @onerror
           
-        return
-        
+        return        
     else
       console.log "data store ready"
-      
+      @ready = true
     return
     
   onerror : () ->
@@ -86,32 +96,42 @@ class window.mem0r1es.StorageManager
       return
   
   #Stores an object corresponding to a page browsing in the datastore
-  store : (storeName, value)->
+  # callback is optional and is here to notify the caller that the object has been successfully inserted
+  store : (storeName, value, callback)->
     trans = @db.transaction [storeName], "readwrite"
     store = trans.objectStore storeName
     request = store.put value
     
     request.onsuccess = (event) ->
-      console.log "#{value} [STORED]"
+      #console.log "#{value} [STORED]"
+      if callback?
+        callback()
       return
     
     request.onerror = @onerror
     
     return
     
-  get : (storeName, key, value, callback) ->
-    result = new Array
-    singleKeyRange = IDBKeyRange.only value
-    trans = @db.transaction [storeName], "readonly"
-    store = trans.objectStore storeName
-    index = store.index key
-    
-    index.openCursor(singleKeyRange).onsuccess = (event) ->
+  get : (query, callback) ->
+    results = new Array
+    trans = @db.transaction [query.storeName], "readonly"
+    store = trans.objectStore query.storeName
+    index = store.index query.key
+   
+    index.openCursor(query.keyRange).onsuccess = (event) ->
       cursor = event.target.result
       if cursor?
-        results[results.length] = cursor.value
-        cursor.continue
+        if query.accept cursor.value
+          results.push cursor.value
+        cursor.continue()
       else
         callback results
+    return
+  
+  deleteDB : () ->
+    @db.close()
+    request = indexedDB.deleteDatabase @dbName
+    request.onsuccess = () =>
+      console.log "database #{@dbName} deleted"
       return
     return
