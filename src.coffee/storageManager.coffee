@@ -105,7 +105,7 @@ class window.mem0r1es.StorageManager
     request.onsuccess = (event) ->
       #console.log "#{value} [STORED]"
       if callback?
-        callback()
+        callback event.target.result
       return
     
     request.onerror = @onerror
@@ -116,8 +116,12 @@ class window.mem0r1es.StorageManager
     results = new Array
     trans = @db.transaction [query.storeName], "readonly"
     store = trans.objectStore query.storeName
-    index = store.index query.key
-   
+    try
+      index = store.index query.key
+    catch error
+      console.log error
+    if not index?
+      index = store
     index.openCursor(query.keyRange).onsuccess = (event) ->
       cursor = event.target.result
       if cursor?
@@ -128,6 +132,13 @@ class window.mem0r1es.StorageManager
         callback results
     return
   
+  count : (storeName, callback) ->
+    trans = @db.transaction [storeName], "readonly"
+    store = trans.objectStore storeName
+    request = store.count()
+    request.onsuccess = (event) ->
+      callback event.target.result
+      
   deleteDB : () ->
     @db.close()
     request = indexedDB.deleteDatabase @dbName
