@@ -17,7 +17,7 @@ window.mem0r1es.benchmark.stringGenerator = (length) ->
   for i in [0 .. length-1] by 1
     string = "#{string}#{alphabet[Math.floor(Math.random()*alphabet.length)]}"
   string = "#{string}."
-  return string    
+  return string
 
 #populate the database with #{mem0r1es.benchmark.cardinality} items
 window.mem0r1es.benchmark.populate = () ->
@@ -33,12 +33,12 @@ window.mem0r1es.benchmark.populate = () ->
       'g': mem0r1es.benchmark.stringGenerator 5
       'h': mem0r1es.benchmark.stringGenerator 5
       'i': mem0r1es.benchmark.stringGenerator 10
-      'j': mem0r1es.benchmark.stringGenerator 10
+      'j': ["abc", "def"]
       'k': mem0r1es.benchmark.stringGenerator 2000
       'l': mem0r1es.benchmark.stringGenerator 2000
     mem0r1es.benchmark.storageManager.store "temporary", data, (result) ->
       mem0r1es.benchmark.currentCardinality++
-  return  
+  return
 
 #############
 
@@ -54,7 +54,7 @@ beforeAll () ->
       mem0r1es.benchmark.currentCardinality is mem0r1es.benchmark.cardinality
     , () ->
       console.log "Time to generate items and populate the DB with #{mem0r1es.benchmark.cardinality} items : #{new Date().getTime() - startPopulate} ms"
-      window.beforeAll_done = true 
+      window.beforeAll_done = true
 
 #############
 
@@ -103,10 +103,22 @@ describe 'IndexDB Fetching schemes', ->
         return
       return
     return
-    
+
+  it 'fetch by array element', ->
+    start = new Date().getTime()
+    runs () ->
+      query = new mem0r1es.Query().from("temporary").where("j", "equals", "def")
+      mem0r1es.benchmark.storageManager.get query, (results) =>
+        console.log "Time to run 'fetch by array element' : #{new Date().getTime() - start} ms. retreived #{results.length} results"
+        console.log results
+        return
+      return
+    return
+
   it 'delete everything', ->
     runs ()->
       mem0r1es.benchmark.storageManager.deleteDB()
       return
     return
   return
+

@@ -7,12 +7,12 @@ class window.mem0r1es.StorageManager
   constructor : () ->
     @db = null
     @dbName = "mem0r1es"
-    @version =  1
+    @version = 1
     @ready = false
   
   openDB : () ->
     request = indexedDB.open @dbName
-    request.onsuccess = (event) =>      
+    request.onsuccess = (event) =>
       @db = event.target.result
       @checkVersion()
       return
@@ -23,7 +23,7 @@ class window.mem0r1es.StorageManager
   checkVersion : () ->
     if parseInt(@version, 10) isnt parseInt(@db.version, 10)
       setVersionrequest = @db.setVersion @version
-      setVersionrequest.onfailure = @onerror;
+      setVersionrequest.onfailure = @onerror
       
       setVersionrequest.onsuccess = (event) =>
         console.log "creating/updating database #{@dbName}"
@@ -37,9 +37,9 @@ class window.mem0r1es.StorageManager
         temporary.createIndex("g", "g", { unique: false })
         temporary.createIndex("h", "h", { unique: false })
         temporary.createIndex("i", "i", { unique: false })
-        temporary.createIndex("j", "j", { unique: false })
-        temporary.createIndex("k", "k", { unique: false })
-        temporary.createIndex("l", "l", { unique: false })
+        temporary.createIndex("j", "j", { unique: false, multiEntry: true })
+        # temporary.createIndex("k", "k", { unique: false })
+        # temporary.createIndex("l", "l", { unique: false })
        
         event.target.transaction.oncomplete = () =>
           console.log "database created and ready"
@@ -48,7 +48,7 @@ class window.mem0r1es.StorageManager
           
         event.target.transaction.onerror = @onerror
           
-        return        
+        return
     else
       console.log "data store ready"
       @ready = true
@@ -146,3 +146,4 @@ class window.mem0r1es.StorageManager
       console.log "database #{@dbName} deleted"
       return
     return
+
