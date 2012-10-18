@@ -12,6 +12,9 @@ class window.mem0r1es.Background
     #Initialize the navigation listener
     @navigationListener = new mem0r1es.NavigationListener()
     
+    #Initialize the document preprocessor pool
+    @DocumentPreprocessorPool = new mem0r1es.DocumentPreprocessorPool @storageManager
+    
     @setupMessageListener()
   
   #send a message to a specific tab
@@ -27,8 +30,9 @@ class window.mem0r1es.Background
     chrome.extension.onMessage.addListener((request, sender, sendResponse) =>
       console.log "redirecting a message to #{request.module}"
       switch(request.module)
-        when "storageManager" then @storageManager.onMessage request.message, sendResponse
-        when "navigationListener" then @navigationListener.onMessage request.message, sendResponse
+        when "storageManager" then @storageManager.onMessage request.message, sender, sendResponse
+        when "navigationListener" then @navigationListener.onMessage request.message, sender, sendResponse
+        when "documentPreprocessor" then @DocumentPreprocessorPool.onMessage request.message, sender, sendResponse
         else console.log "Could not redirect the message from the popup user interface. #{request.module} is not a valid module"
       #the listener must return true if the response needs to be sent asynchronously
       return true)

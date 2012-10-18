@@ -27,19 +27,17 @@ class window.mem0r1es.StorageManager
       
       setVersionrequest.onsuccess = (event) =>
         console.log "creating/updating database #{@dbName}"
-        temporary = @db.createObjectStore "temporary", { keyPath: "a" }
-        consolidated = @db.createObjectStore "consolidated", { keyPath: "a" }
-        temporary.createIndex("b", "b", { unique: false })
-        temporary.createIndex("c", "c", { unique: false })
-        temporary.createIndex("d", "d", { unique: false })
-        temporary.createIndex("e", "e", { unique: false })
-        temporary.createIndex("f", "f", { unique: false })
-        temporary.createIndex("g", "g", { unique: false })
-        temporary.createIndex("h", "h", { unique: false })
-        temporary.createIndex("i", "i", { unique: false })
-        temporary.createIndex("j", "j", { unique: false, multiEntry: true })
-        # temporary.createIndex("k", "k", { unique: false })
-        # temporary.createIndex("l", "l", { unique: false })
+        temporary = @db.createObjectStore "temporary", { keyPath: "timeStamp" }
+        consolidated = @db.createObjectStore "consolidated", { keyPath: "timeStamp" }
+        #temporary.createIndex("b", "b", { unique: false })
+        #temporary.createIndex("c", "c", { unique: false })
+        #temporary.createIndex("d", "d", { unique: false })
+        #temporary.createIndex("e", "e", { unique: false })
+        #temporary.createIndex("f", "f", { unique: false })
+        #temporary.createIndex("g", "g", { unique: false })
+        #temporary.createIndex("h", "h", { unique: false })
+        #temporary.createIndex("i", "i", { unique: false })
+        #temporary.createIndex("j", "j", { unique: false, multiEntry: true })
        
         event.target.transaction.oncomplete = () =>
           console.log "database created and ready"
@@ -58,7 +56,7 @@ class window.mem0r1es.StorageManager
     console.log "ERROR"
     
   #Handles messages received from background.js
-  onMessage : (message, sendResponse) ->
+  onMessage : (message, sender, sendResponse) ->
     console.log "message #{message.title}"
     switch(message.title)
       when "clearDB" then @clearDatabase sendResponse

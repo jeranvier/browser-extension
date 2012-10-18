@@ -33,5 +33,5 @@ mem0r1es.injectable.sendMessage = (module, message, callback)->
 mem0r1es.injectable.clickListener = (event) ->
   return
 
-mem0r1es.injectable.sendMessage "navigationListener", {title : "DOMtoJSON" , content : mem0r1es.injectable.DOMtoJSON document.getElementsByTagName("html")[0]}
+mem0r1es.injectable.sendMessage "documentPreprocessor", {title : "newMem0r1e" , content : mem0r1es.injectable.DOMtoJSON document.getElementsByTagName("html")[0]}
 #document.getElementsByTagName("html")[0].addEventListener "click", mem0r1es.injectable.clickListener, false
