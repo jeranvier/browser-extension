@@ -27,8 +27,8 @@ class window.mem0r1es.StorageManager
       
       setVersionrequest.onsuccess = (event) =>
         console.log "creating/updating database #{@dbName}"
-        temporary = @db.createObjectStore "temporary", { keyPath: "timeStamp" }
-        consolidated = @db.createObjectStore "consolidated", { keyPath: "timeStamp" }
+        temporary = @db.createObjectStore "temporary", { keyPath: "pageId" }
+        consolidated = @db.createObjectStore "consolidated", { keyPath: "pageId" }
         #temporary.createIndex("b", "b", { unique: false })
         #temporary.createIndex("c", "c", { unique: false })
         #temporary.createIndex("d", "d", { unique: false })
@@ -103,7 +103,9 @@ class window.mem0r1es.StorageManager
     request.onsuccess = (event) ->
       #console.log "#{value} [STORED]"
       if callback?
-        callback event.target.result
+        try
+          callback event.target.result
+        catch error
       return
     
     request.onerror = @onerror

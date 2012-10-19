@@ -3,18 +3,20 @@ window.mem0r1es = {} if not window.mem0r1es?
 class window.mem0r1es.DocumentPreprocessor
 
   constructor : (@message, @sender, @sendResponse, @storageManager) ->
+    @pageId = @message.content.pageId
     @document = {}
     @currentNumberOfFetchedFeatures = 0
-    @numberOfFetchedFeatures = 5
+    @numberOfFetchedFeatures = 6
     console.log "new Document processor created to handle the mem0r1e from #{sender.tab.url}"
     @preprocessMem0r1e()
   
   preprocessMem0r1e : () ->
-    @set "timeStamp", new Date().getTime()
     @getLanguage @sender.tab
     @takeScreenshot @sender.windowId, @sender.tab
     @set "URL", @sender.tab.url
-    @set "DOM", @message.content
+    @set "timestamp", @message.content.timestamp
+    @set "pageId", @message.content.pageId
+    @set "DOM", @message.content.DOMtoJSON
     return
   
   getLanguage : (tab) =>
@@ -26,21 +28,28 @@ class window.mem0r1es.DocumentPreprocessor
   set : (property, value) -> 
     @document[property] = value
     @currentNumberOfFetchedFeatures++
-    if @IsReadyToStore()
+    if @isReadyToStore()
       @storetemporaryDocument()
     return
   
-  storetemporaryDocument : () ->
-    @storageManager.store "temporary", @document, @sendResponse
+  storetemporaryDocument : (sendResponse = @sendResponse) ->
+    @storageManager.store "temporary", @document, sendResponse
+    return
   
-  IsReadyToStore : () ->
+  isReadyToStore : () ->
     return @currentNumberOfFetchedFeatures is @numberOfFetchedFeatures
-    
-  IsDone : () ->
-    return false
     
   takeScreenshot : (windowID, tab) =>
     chrome.tabs.captureVisibleTab windowID, {quality : 10, format : "jpeg"}, (dataUrl) =>
       @set "screenshot", dataUrl
       return
     return
+    
+  update : (message, sendResponse) -> #TODO Handle the sendResponse
+    if message.content.event.type is "unload"
+      @sendResponse = sendResponse
+    if not @document.userEvents
+      @document.userEvents = new Array()
+    @document.userEvents.push message.content.event
+    if @isReadyToStore()
+      @storetemporaryDocument(sendResponse)

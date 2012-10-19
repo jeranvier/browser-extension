@@ -23,15 +23,51 @@ mem0r1es.injectable.DOMtoJSON = (node)->
   JSONNode
 
 mem0r1es.injectable.sendMessage = (module, message, callback)->
-  if chrome.extension?
+  if chrome.extension? 
     chrome.extension.sendMessage {module:module, message:message},(response)->
       if callback?
         callback response
       return
   return
+  
+mem0r1es.injectable.getPageId = () ->
+  if not window.mem0r1es.pageId?
+    window.mem0r1es.pageId = "#{document.location.href.split("/")[2]}_#{new Date().getTime()}_#{Math.floor(Math.random()*1000)}"
+  return mem0r1es.pageId
 
+mem0r1es.injectable.getInitialTimeStamp = () ->
+  return parseInt mem0r1es.injectable.getPageId().split("_")[1], 10
+  
 mem0r1es.injectable.clickListener = (event) ->
+  mem0r1es.injectable.sendMessage "documentPreprocessor", {
+    title : "mem0r1eEvent"
+    content :
+      pageId : mem0r1es.injectable.getPageId()
+      event :
+        timestamp: new Date().getTime()
+        type : "click"
+        target : mem0r1es.injectable.DOMtoJSON event.target
+    }, null
   return
 
-mem0r1es.injectable.sendMessage "documentPreprocessor", {title : "newMem0r1e" , content : mem0r1es.injectable.DOMtoJSON document.getElementsByTagName("html")[0]}
-#document.getElementsByTagName("html")[0].addEventListener "click", mem0r1es.injectable.clickListener, false
+mem0r1es.injectable.unloadListener = (event) ->
+  mem0r1es.injectable.sendMessage "documentPreprocessor", {
+    title : "mem0r1eEvent"
+    content :
+      pageId : mem0r1es.injectable.getPageId()
+      event :
+        timestamp: new Date().getTime()
+        type : "unload"
+    }, null
+  return
+  
+mem0r1es.injectable.sendMessage "documentPreprocessor", {
+  title : "newMem0r1e"
+  content :
+    pageId : mem0r1es.injectable.getPageId()
+    timestamp: mem0r1es.injectable.getInitialTimeStamp()
+    DOMtoJSON : mem0r1es.injectable.DOMtoJSON document.getElementsByTagName("html")[0]
+  }, null
+  
+document.getElementsByTagName("html")[0].addEventListener "click", mem0r1es.injectable.clickListener, false
+window.addEventListener "beforeunload", mem0r1es.injectable.unloadListener, false
