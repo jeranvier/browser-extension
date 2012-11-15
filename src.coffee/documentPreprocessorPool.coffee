@@ -11,6 +11,8 @@ class window.mem0r1es.DocumentPreprocessorPool
     switch(message.title)
       when "newMem0r1e" then @createDocumentPreprocessor message, sender, sendResponse
       when "mem0r1eEvent" then @updateMem0r1e message, sender, sendResponse
+      when "mem0r1eDSFeature" then @updateMem0r1e message, sender, sendResponse
+      when "mem0r1eDSEvent" then @updateMem0r1e message, sender, sendResponse
       else console.log "Could not understand the command #{message.title}"
     return
     
@@ -20,7 +22,7 @@ class window.mem0r1es.DocumentPreprocessorPool
     
   updateMem0r1e : (message, sender, sendResponse) =>
     #TODO handle the case when the unload event is not triggered
-    if message.content.event.type is "unload" #if the event is unload then we have to delete the documentPreprocessor once it performed its business
+    if message.content.event? and message.content.event.type is "unload" #if the event is unload then we have to delete the documentPreprocessor once it performed its business
       sendResponse = () =>
         @deleteDocumentPreprocessor message.content.pageId
     for documentPreprocessor in @documentPreprocessors

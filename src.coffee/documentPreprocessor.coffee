@@ -6,14 +6,15 @@ class window.mem0r1es.DocumentPreprocessor
     @pageId = @message.content.pageId
     @document = {}
     @currentNumberOfFetchedFeatures = 0
-    @numberOfFetchedFeatures = 6
-    console.log "new Document processor created to handle the mem0r1e from #{sender.tab.url}"
+    @numberOfFetchedFeatures = 7
+    console.log "new Document processor created to handle the mem0r1e from #{sender.tab.url} (#{@pageId})"
     @preprocessMem0r1e()
   
   preprocessMem0r1e : () ->
     @getLanguage @sender.tab
     @takeScreenshot @sender.windowId, @sender.tab
     @set "URL", @sender.tab.url
+    @set "reverseDomainName", @sender.tab.url.split("/")[2].split(".").reverse().join(".")
     @set "timestamp", @message.content.timestamp
     @set "pageId", @message.content.pageId
     @set "DOM", @message.content.DOMtoJSON
@@ -46,6 +47,18 @@ class window.mem0r1es.DocumentPreprocessor
     return
     
   update : (message, sendResponse) -> #TODO Handle the sendResponse
+    switch message.title
+      when "mem0r1eEvent" then @createEvent(message, sendResponse)
+      when "mem0r1eDSFeature" then @createDSFeature(message, sendResponse)
+  
+  createDSFeature : (message, sendResponse) ->
+    if not @document.DSFeatures
+      @document.DSFeatures = new Array()
+    @document.DSFeatures.push message.content.feature
+    if @isReadyToStore()
+      @storetemporaryDocument(sendResponse)
+  
+  createEvent : (message, sendResponse) ->
     if message.content.event.type is "unload"
       @sendResponse = sendResponse
     if not @document.userEvents
