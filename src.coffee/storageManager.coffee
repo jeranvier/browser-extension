@@ -29,6 +29,7 @@ class window.mem0r1es.StorageManager
         console.log "creating/updating database #{@dbName}"
         temporary = @db.createObjectStore "temporary", { keyPath: "pageId" }
         consolidated = @db.createObjectStore "consolidated", { keyPath: "pageId" }
+        DSRules = @db.createObjectStore "DSRules", { keyPath: "ruleId" }
         #temporary.createIndex("b", "b", { unique: false })
         #temporary.createIndex("c", "c", { unique: false })
         #temporary.createIndex("d", "d", { unique: false })
@@ -69,6 +70,7 @@ class window.mem0r1es.StorageManager
   clearDatabase: (sendResponse)->
     @clearStore "temporary"
     @clearStore "consolidated"
+    @clearStore "DSRules"
     sendResponse {message:{title:"message from networkManager", content:"Database cleared", level:"success"}}
   
   #Clears all the data from a specific store and send an ack to the popup
@@ -119,10 +121,13 @@ class window.mem0r1es.StorageManager
     try
       index = store.index query.key
     catch error
-      console.log error
     if not index?
       index = store
-    index.openCursor(query.keyRange).onsuccess = (event) ->
+    if query.keyRange
+      request = index.openCursor(query.keyRange)
+    else
+      request = index.openCursor()
+    request.onsuccess = (event) ->
       cursor = event.target.result
       if cursor?
         if query.accept cursor.value
@@ -138,6 +143,13 @@ class window.mem0r1es.StorageManager
     request = store.count()
     request.onsuccess = (event) ->
       callback event.target.result
+      
+  delete : (storeName, id, callback) ->
+    trans = @db.transaction [storeName], "readwrite"
+    store = trans.objectStore storeName
+    request = store.delete id
+    request.onsuccess = (event) ->
+      callback {id : id, status: "deleted"}
       
   deleteDB : () ->
     @db.close()

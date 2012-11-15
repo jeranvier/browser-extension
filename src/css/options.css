@@ -1,0 +1,71 @@
+body{
+  font-family : verdana,helvetica,arial,sans-serif;
+}
+
+button{
+	width:180px;
+	height:30px;
+	border:0px;
+	font-family:'Courier New';
+	font-size:14px;
+	color:#FFFFFF;
+	background-color:#999999;
+	margin:7px;
+	border-radius: 5px;
+}
+
+.ruleAction{
+	width:90px;
+}
+
+button:hover{
+	background-color:#CCCCCC;
+}
+
+table.rules{
+  position:relative;
+  border-collapse:collapse;
+  width:800px;
+}
+
+table{
+  margin: auto;
+}
+
+td.label{
+  text-align:right;
+  vertical-align:top;
+  font-size:14px;
+}
+
+thead{
+  text-align:center;
+  color:#FFFFFF;
+	background-color:#999999;
+}
+
+tr{
+  border:1px solid #999999;
+}
+
+div.overlay{
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width:100%;
+  height:100%;
+  text-align:center;
+  background-color: rgba(255,255,255,0.8);
+  display:none;
+  z-index: 1000;
+}
+
+div .form{
+  position:relative;
+  top:200px;
+  width:500px;
+  margin:auto;
+  border-radius: 20px;
+  border:15px solid rgba(100,100,100,0.8);
+  padding:20px;
+}

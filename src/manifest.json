@@ -1,7 +1,8 @@
 {
 	"name": "mem0r1es",
 	"version": "0.1",
-	"background": { "scripts": ["js/query.js", "js/storageManager.js", "js/icon.js", "js/networkListener.js", "js/navigationListener.js", "js/documentPreprocessorPool.js", "js/documentPreprocessor.js", "js/background.js"] },
+  "options_page": "html/options.html",
+	"background": { "scripts": ["js/query.js", "js/storageManager.js", "js/icon.js", "js/networkListener.js", "js/navigationListener.js", "js/dslProcessor.js", "js/documentPreprocessorPool.js", "js/documentPreprocessor.js", "js/background.js"] },
 	"permissions": [
 		"tabs", "*://*/*",
 		"webRequest", "*://*/*",

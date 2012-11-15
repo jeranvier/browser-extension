@@ -1,0 +1,66 @@
+<html>
+  <head>
+    <title>Mem0r1es options</title>
+    <link rel="stylesheet" media="all" href="../css/options.css">
+    <script src = "../js/options.js" ></script>
+    
+  </head>
+  <body>
+    <div class = "overlay" id = "overlay">
+      <div class = "form">
+        <input type = "hidden" id = "ruleId" />
+        <table class = "formInputs">
+        <tr>
+          <td class = "label">
+            Name of the feature:
+          </td>
+          <td>
+            <input type = "text" id = "name" />
+          </td>
+        </tr>
+        <tr>
+          <td class = "label">
+            URL pattern to include:
+          </td>
+          <td>
+            <input type = "text" id = "includes" />
+          </td>
+        </tr>
+        <tr>
+          <td class = "label">
+            URL pattern to exclude:
+          </td>
+          <td>
+            <input type = "text" id = "excludes" />
+          </td>
+        </tr>
+        <tr>
+          <td class = "label">
+            Function(s) to execute:
+          </td>
+          <td>
+            <textarea id = "exec" ></textarea>
+          </td>
+        </tr>
+        </table>
+        <div id = "status"></div>
+        <button id = "save">Save</button><button id = "cancel">Cancel</button>
+      </div>
+    </div>
+    
+    <button id = "createButton">Create New Rule</button>
+    <table id = "rules" class= "rules">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Includes</th>
+          <th>Excludes</th>
+          <th>Functions</th>
+          <th>action</th>
+        </tr>
+      </thead>
+      <tbody id = "rulesBody">
+      </tbody>
+    </table>
+  </body>
+</html>
