@@ -50,6 +50,27 @@ mem0r1es.injectable.clickListener = (event) ->
     }, null
   return
 
+mem0r1es.injectable.mouseupListener = (event) ->
+  currentSelection = window.getSelection()
+  
+  if typeof(currentSelection) is "undefined" or not lastSelection?
+    lastSelection = currentSelection
+  
+  if currentSelection is lastSelection and typeof(currentSelection) isnt "undefined" and currentSelection.toString().length isnt 0
+    currentSelection = currentSelection.toString()
+    mem0r1es.injectable.sendMessage "documentPreprocessor", {
+    title : "mem0r1eEvent"
+    content :
+      pageId : mem0r1es.injectable.getPageId()
+      event :
+        timestamp: new Date().getTime()
+        type : "highlight"
+        data : currentSelection
+    }, null
+  
+  lastSelection = currentSelection
+  return
+
 mem0r1es.injectable.unloadListener = (event) ->
   mem0r1es.injectable.sendMessage "documentPreprocessor", {
     title : "mem0r1eEvent"
@@ -88,14 +109,19 @@ mem0r1es.injectable.DSRulesHandler = (DSRules) ->
             data : data
         }, null
   return
+
+mem0r1es.createListeners = () ->
+  document.getElementsByTagName("html")[0].addEventListener "click", mem0r1es.injectable.clickListener, false
+  document.getElementsByTagName("html")[0].addEventListener "click", mem0r1es.injectable.clickListener, false
+  document.getElementsByTagName("html")[0].addEventListener "mouseup", mem0r1es.injectable.mouseupListener, false
+  window.addEventListener "beforeunload", mem0r1es.injectable.unloadListener, false
   
 mem0r1es.injectable.initialize = () ->
   if not window.mem0r1es.pageId?
     mem0r1es.injectable.getPageId()
     mem0r1es.injectable.createNewMem0r1e()
     mem0r1es.injectable.loadDSRules()
-    document.getElementsByTagName("html")[0].addEventListener "click", mem0r1es.injectable.clickListener, false
-    window.addEventListener "beforeunload", mem0r1es.injectable.unloadListener, false
+    mem0r1es.createListeners()
   
 mem0r1es.eventCatched = (title, data, callback) ->
   mem0r1es.injectable.sendMessage "documentPreprocessor", {
