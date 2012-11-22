@@ -97,6 +97,8 @@ mem0r1es.options.initialize = () ->
     document.getElementById('overlay').style.display = "block";
   document.getElementById('cancel').addEventListener 'click', () ->
     document.getElementById('overlay').style.display = "none";
+  document.getElementById('closeRuleOverlay').addEventListener 'click', () ->
+    document.getElementById('overlay').style.display = "none";
   mem0r1es.options.displayRules()
   
 document.addEventListener 'DOMContentLoaded', mem0r1es.options.initialize

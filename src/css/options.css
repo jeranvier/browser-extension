@@ -69,3 +69,21 @@ div .form{
   border:15px solid rgba(100,100,100,0.8);
   padding:20px;
 }
+
+div.close{
+  position:absolute;
+  top:0;
+  right:0;
+  width:10px;
+  height:10px;
+  padding:7px;
+  font-weight:bold;
+  text-align:center;
+  color:#999999;
+  cursor:pointer;
+
+}
+
+div.close:hover{
+  color:#000000;
+}
