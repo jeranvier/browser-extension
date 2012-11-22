@@ -7,7 +7,7 @@ class window.mem0r1es.StorageManager
   constructor : () ->
     @db = null
     @dbName = "mem0r1es"
-    @version = 1
+    @version = 2
     @ready = false
   
   openDB : () ->
@@ -27,21 +27,25 @@ class window.mem0r1es.StorageManager
       
       setVersionrequest.onsuccess = (event) =>
         console.log "creating/updating database #{@dbName}"
-        temporary = @db.createObjectStore "temporary", { keyPath: "pageId" }
-        consolidated = @db.createObjectStore "consolidated", { keyPath: "pageId" }
-        DSRules = @db.createObjectStore "DSRules", { keyPath: "ruleId" }
-        #temporary.createIndex("b", "b", { unique: false })
-        #temporary.createIndex("c", "c", { unique: false })
-        #temporary.createIndex("d", "d", { unique: false })
-        #temporary.createIndex("e", "e", { unique: false })
-        #temporary.createIndex("f", "f", { unique: false })
-        #temporary.createIndex("g", "g", { unique: false })
-        #temporary.createIndex("h", "h", { unique: false })
-        #temporary.createIndex("i", "i", { unique: false })
-        #temporary.createIndex("j", "j", { unique: false, multiEntry: true })
-       
+        if not @db.objectStoreNames.contains "temporary"
+          temporary = @db.createObjectStore "temporary", { keyPath: "pageId" }
+          #temporary.createIndex("b", "b", { unique: false })
+          #temporary.createIndex("j", "j", { unique: false, multiEntry: true })
+        
+        if not @db.objectStoreNames.contains "consolidated"
+          consolidated = @db.createObjectStore "consolidated", { keyPath: "pageId" }
+          
+        if not @db.objectStoreNames.contains "DSRules"
+          DSRules = @db.createObjectStore "DSRules", { keyPath: "ruleId" }
+          
+        if not @db.objectStoreNames.contains "labels"
+          labels = @db.createObjectStore "labels", { keyPath: "labelId", autoIncrement: true }
+          
+        if not @db.objectStoreNames.contains "userStudySessions"
+          userStudySessions = @db.createObjectStore "userStudySessions", { keyPath: "timestamp" }
+
         event.target.transaction.oncomplete = () =>
-          console.log "database created and ready"
+          console.log "database created/updated and ready"
           @ready = true
           return
           
@@ -71,6 +75,7 @@ class window.mem0r1es.StorageManager
     @clearStore "temporary"
     @clearStore "consolidated"
     @clearStore "DSRules"
+    @clearStore "labels"
     sendResponse {message:{title:"message from networkManager", content:"Database cleared", level:"success"}}
   
   #Clears all the data from a specific store and send an ack to the popup
@@ -145,6 +150,7 @@ class window.mem0r1es.StorageManager
       callback event.target.result
       
   delete : (storeName, id, callback) ->
+    console.log "deleting object with PK #{id} from #{storeName}"
     trans = @db.transaction [storeName], "readwrite"
     store = trans.objectStore storeName
     request = store.delete id

@@ -21,6 +21,9 @@ class window.mem0r1es.Background
     #Initialize the document preprocessor pool
     if not @state?
       @DocumentPreprocessorPool = new mem0r1es.DocumentPreprocessorPool @storageManager
+      
+    #Initialize the navigation listener
+    @userStudyToolbox = new mem0r1es.UserStudyToolbox @storageManager
     
     if not @state?
       @setupMessageListener()
@@ -79,6 +82,7 @@ class window.mem0r1es.Background
         when "documentPreprocessor" then @DocumentPreprocessorPool.onMessage request.message, sender, sendResponse if @state is "on"
         when "DSLProcessor" then @dslProcessor.onMessage request.message, sender, sendResponse
         when "background" then @onMessage request.message, sender, sendResponse
+        when "userStudyToolbox" then @userStudyToolbox.onMessage request.message, sender, sendResponse
         else console.log "Could not redirect the message from the popup user interface. #{request.module} is not a valid module"
       #the listener must return true if the response needs to be sent asynchronously
       return true)

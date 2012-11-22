@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Session information</title>
+    <script src="../external/jquery-1.8.3.min.js"></script>
+		<script src="../js/sessionInfo.js"></script>
+    
+    <link rel="stylesheet" media="all" href="../css/sessionInfo.css">
+	</head>
+	<body>
+    <div id="steps">
+      <div id="gotoPhotoBooth" class="step">1. Picture</div>
+      <div id="gotoLocation" class="step">2. Location</div>
+      <div id="gotoValidation" class="step">3. Validation</div>
+    </div>
+    <div id="slider">
+      <div class ="overlay" id="labelsManagerOverlay">
+        <div class="labelsEdit">
+        <div id="closeLabelOverlay" class="close">&#9747;</div>
+          <h2>List of available labels</h2>
+            <div id="labelsList">
+            </div>
+          <h2>Add a new label</h2>
+          <div class="form">
+            <input type="text" id="newLabelInput"/>
+            <button id="newLabelButton">add</button>
+          </div>
+        </div>
+      </div>
+      <div id="information">
+        <div id="photoBooth" class="pieceOfInfo">
+          <video autoplay id="camera" class="pic"></video>          
+          <canvas id="pic" class="pic"></canvas>
+          <button id="takePicture" class="action">Take picture</button>
+          <button id="closeAndIncognito" class="action">Do not record this session</button>
+        </div>
+        <div id="location" class="pieceOfInfo">
+          <div id="labels"></div>
+          <iframe src="gmap.html" id="gmap" seamless></iframe>
+        </div>
+        <div id="validation" class="pieceOfInfo">
+          <p id="validationText"></p>
+          <img id="finalPic" class="pic"/>
+          <img id="LocationPic" class="pic"/>
+          <button id="closeSessionInfo" class="action">Save & Close</button>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,221 @@
+body{
+  margin:0;
+  padding:0px;
+  font-family: Verdana, "Trebuchet MS", "Lucida Grande", Helvetica, sans-serif;
+}
+
+.pic{
+  height:338px;
+  width:450px;
+  float:left;
+  background-color:#EEEEFF;
+  margin:10px 0px 10px 0px;
+}
+
+.action{
+  clear:both;
+  position:relative;
+  display:block;
+  margin:auto;
+  margin-top:10px;
+}
+
+iframe#gmap{
+  height:675px;
+  width:900px;
+}
+
+div#map_canvas{
+  height:675px;
+  width:900px;
+  margin:0;
+}
+
+span.label{
+  display:inline-block;
+	border:0px;
+	font-family:'Courier New';
+	font-size:14px;
+	color:#ffffff;
+	background-color:#999999;
+	margin:2px;
+  padding:4px 6px 4px 6px;
+  border-radius:2px;
+}
+
+span.inEdit{
+	margin:10px 10px 20px 10px;
+  padding-right:0px;
+}
+
+span.selected{
+	background-color:#333333;
+}
+
+div#labels{
+  position:relative;
+  text-align:center;
+  margin:auto;
+  border-radius:5px;
+  background-color:#FAFAFA;
+  padding:10px;
+}
+
+span.labelHover:hover{
+	background-color:#CCCCCC;
+  cursor:pointer;
+}
+
+span.labelDelete{
+  padding:4px 6px 4px 6px;
+  margin-left: 5px;
+	font-family:'Courier New';
+  font-size:14px;
+	color:#ffffff;
+	background-color:#CCCCCC;
+  cursor:pointer;
+  border-radius:0px 2px 2px 0px;
+}
+
+span.labelDelete:hover{
+	background-color:#FF0000;
+}
+
+span.selected:hover{
+	background-color:#333333;
+}
+
+p.manageLabelLink{
+  color:#999999;
+  font-size:11px;
+  cursor:pointer;
+}
+
+p.manageLabelLink:hover{
+  text-decoration:underline;
+}
+
+div.overlay{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background-color:rgba(255,255,255,0.8);
+  z-index:1;
+  display:none;
+}
+
+div.labelsEdit{
+  position:relative;
+  top:200px;
+  width:500px;
+  margin:auto;
+  border-radius: 20px;
+  border:15px solid rgba(100,100,100,0.8);
+  background-color:#FFFFFF;
+  padding:20px;
+}
+
+h2{
+  font-size: 16px;
+  border-bottom: 1px solid #CCCCCC;
+  margin:0;
+  padding:0;
+  margin-bottom: 10px;
+  color:#444444;
+  clear:both;
+}
+
+button{
+	height:30px;
+	border:0px;
+	font-family:'Courier New';
+	font-size:14px;
+	color:#FFFFFF;
+	background-color:#999999;
+	margin:7px;
+	border-radius: 5px;
+  cursor:pointer;
+}
+
+button:hover{
+	background-color:#CCCCCC;
+}
+
+div.form{
+  text-align:center;
+}
+
+div#labelsList{
+  position:relative;
+  margin:10px 0px 10px 0px;
+  text-align:center;
+}
+
+div.close{
+  position:absolute;
+  top:0;
+  right:0;
+  width:10px;
+  height:10px;
+  padding:7px;
+  font-weight:bold;
+  text-align:center;
+  color:#999999;
+  cursor:pointer;
+
+}
+
+div.close:hover{
+  color:#000000;
+}
+
+div.pieceOfInfo{
+  position:absolute;
+  width:900px;
+  float:left;
+  display:none;
+}
+
+div#information{
+  width:1800px;
+  height:1000px;
+  overflow:visible;
+}
+
+div#slider{
+  position:relative;
+  width:900px;
+  margin:auto;
+  overflow:hidden;
+}
+
+div#steps{
+  height:50px;
+  width:900px;
+  margin:auto;
+}
+
+div.step{
+  height:50px;
+  width:298px;
+  background-color:#999999;
+  color:#333333;
+  text-shadow: 0px 1px 0px #CCCCCC;
+  float:left;
+  text-align:center;
+  line-height:40px;
+  border:1px solid #CCCCCC;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+div.selected{
+background-color:#cccccc;
+}
+
+span.warning{
+  color:#FF0000;
+  font-weight:bold;
+}

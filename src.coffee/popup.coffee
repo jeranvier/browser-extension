@@ -8,7 +8,7 @@ class window.mem0r1es.Popup
       document.getElementById("toggleMem0r1es").innerText = response.text
       return)
     return
-      
+    
   #create the event listeners for the buttons
   createListeners : () =>
     document.getElementById("clearDB").addEventListener "click", ()=>
@@ -20,9 +20,17 @@ class window.mem0r1es.Popup
       @sendMessage("background", {title:"toggleMem0r1es", content:""}, @toggleMem0r1esCallback)
       return
     , false
-    return
-   
     
+    document.getElementById("DSRulesButton").addEventListener "click", ()=>
+      chrome.tabs.create 'url': chrome.extension.getURL('html/options.html')
+    , false
+    
+    document.getElementById("cameraButton").addEventListener "click", ()=>
+      chrome.tabs.create 'url': chrome.extension.getURL('html/sessionInfo.html')
+    , false
+    return
+  
+      
   #Send message from the popup (UI) to the extension.
   #Arguments: The module to which redirect the message, the message itself as a json and a callback to handle the response
   sendMessage : (module,message, callback) ->
