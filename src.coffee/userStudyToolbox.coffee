@@ -4,6 +4,7 @@ class window.mem0r1es.UserStudyToolbox
 
   constructor : (@storageManager)->
     console.log "Toolbox for the user study is ready"
+    @checkIfNeedNewContext()
   
   onMessage : (message, sender, sendResponse) ->
     switch(message.title)
@@ -11,6 +12,7 @@ class window.mem0r1es.UserStudyToolbox
         when "deleteLabel" then @deleteLabel message.content, sendResponse
         when "retrieveLabels" then @retrieveLabels sendResponse
         when "saveSession" then @saveSession message.content, sendResponse
+        when "newActivity" then @checkIfNeedNewContext sendResponse
     return
     
   addLabel : (messageContent, sendResponse) =>
@@ -30,5 +32,22 @@ class window.mem0r1es.UserStudyToolbox
     
   saveSession : (messageContent, sendResponse) =>
     @storageManager.store "userStudySessions", messageContent, () =>
+      @updateLastActivityTime()
       sendResponse()
     return
+    
+  updateLastActivityTime : () ->
+    lastActivityTime = new Date().getTime()
+    localStorage.setItem 'lastActivityTime', lastActivityTime
+    return lastActivityTime
+    
+  getLastActivityTime : () ->
+    lastActivityTime = localStorage.getItem 'lastActivityTime'
+    if lastActivityTime is null
+      return @updateLastActivityTime()
+    return lastActivityTime
+    
+  checkIfNeedNewContext : () ->
+    if (new Date().getTime() - @getLastActivityTime())>10*1000*60
+      chrome.tabs.create 'url': chrome.extension.getURL('html/sessionInfo.html')
+    @updateLastActivityTime()

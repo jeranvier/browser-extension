@@ -87,7 +87,9 @@ class window.mem0r1es.Background
           @navigationListener.onMessage request.message, sender, sendResponse
         when "documentPreprocessor"
           if @state is "on"
-            @DocumentPreprocessorPool.onMessage request.message, sender, sendResponse 
+            @DocumentPreprocessorPool.onMessage request.message, sender, sendResponse
+          #during the user study, we update the last activity time (to get a new context after 15min of inactivity)
+          @userStudyToolbox.onMessage {title:"newActivity"}, sender, sendResponse
         when "DSLProcessor"
           @dslProcessor.onMessage request.message, sender, sendResponse
         when "background"
