@@ -14,7 +14,10 @@ mem0r1es.options.displayRules = () ->
     rulesBodyNode = document.getElementById "rulesBody"
     while rulesBodyNode.hasChildNodes()
       rulesBodyNode.removeChild(rulesBodyNode.lastChild);
+    
+    count = 0
     for ruleId, rule of DSRules
+      count++
       ruleNode = document.createElement "tr"
       name = document.createElement "td"
       includes = document.createElement "td"
@@ -22,15 +25,15 @@ mem0r1es.options.displayRules = () ->
       functions = document.createElement "td"
       actions = document.createElement "td"
       editRuleButton = document.createElement "button"
-      editRuleButton.className = "ruleAction"
-      editRuleButton.id = "edit#{rule.ruleId}"
+      editRuleButton.className = "ruleAction floatRight"
+      editRuleButton.id = "edit_rule#{rule.ruleId}"
       editRuleButton.addEventListener 'click', () ->
-        mem0r1es.options.editRule parseInt(@id.substring(4),10)
+        mem0r1es.options.editRule parseInt(@id.substring(9),10)
       deleteRuleButton = document.createElement "button"
-      deleteRuleButton.className = "ruleAction"
-      deleteRuleButton.id = "delete#{rule.ruleId}"
+      deleteRuleButton.className = "ruleAction floatRight"
+      deleteRuleButton.id = "delete_rule#{rule.ruleId}"
       deleteRuleButton.addEventListener 'click', () ->
-        mem0r1es.options.deleteRule parseInt(@id.substring(6),10)
+        mem0r1es.options.deleteRule parseInt(@id.substring(11),10)
       name.appendChild(document.createTextNode rule.name)
       includes.appendChild(document.createTextNode rule.includes)
       excludes.appendChild(document.createTextNode rule.excludes)
@@ -45,6 +48,15 @@ mem0r1es.options.displayRules = () ->
       ruleNode.appendChild functions
       ruleNode.appendChild actions
       rulesBodyNode.appendChild ruleNode
+    
+    if count is 0
+      ruleNode = document.createElement "tr"
+      message = document.createElement "td"
+      message.setAttribute "colspan", "5"
+      message.className = "centered"
+      message.appendChild(document.createTextNode "No domain specific rules yet")
+      ruleNode.appendChild message
+      rulesBodyNode.appendChild ruleNode
 
 mem0r1es.options.editRule = (ruleId) ->
   mem0r1es.options.sendMessage "DSLProcessor", {title: "getSpecificRule", content:{ruleId: ruleId}}, (rule) ->
@@ -53,7 +65,8 @@ mem0r1es.options.editRule = (ruleId) ->
     document.getElementById("includes").value = rule.includes
     document.getElementById("excludes").value = rule.excludes
     document.getElementById("exec").value = rule.exec
-    document.getElementById('overlay').style.display = "block";
+    $("#overlay").fadeIn()
+    $("#ruleForm").fadeIn()
     return
   return
   
@@ -80,23 +93,95 @@ mem0r1es.options.saveRule = () ->
     status.innerHTML = "Rules updated."
     setTimeout () ->
       status.innerHTML = ""
-      document.getElementById('overlay').style.display = "none";
+      $("#overlay").fadeOut()
     , 0
     mem0r1es.options.displayRules()
 
-mem0r1es.options.initialize = () ->
-  document.getElementById('save').addEventListener 'click', mem0r1es.options.saveRule
-  document.getElementById('createButton').addEventListener 'click', () ->
+mem0r1es.options.initializeRules = () ->
+  document.getElementById('saveRule').addEventListener 'click', mem0r1es.options.saveRule
+  document.getElementById('createRuleButton').addEventListener 'click', () ->
     document.getElementById("ruleId").value = ""
     document.getElementById("name").value = ""
     document.getElementById("includes").value = ""
     document.getElementById("excludes").value = ""
     document.getElementById("exec").value = ""
-    document.getElementById('overlay').style.display = "block";
-  document.getElementById('cancel').addEventListener 'click', () ->
-    document.getElementById('overlay').style.display = "none";
+    $("#overlay").fadeIn()
+    $("#ruleForm").fadeIn()
+  document.getElementById('cancelRule').addEventListener 'click', () ->
+    $("#overlay").fadeOut()
+    $("#ruleForm").fadeOut()
   document.getElementById('closeRuleOverlay').addEventListener 'click', () ->
-    document.getElementById('overlay').style.display = "none";
+    $("#overlay").fadeOut()
+    $("#ruleForm").fadeOut()
   mem0r1es.options.displayRules()
+
+mem0r1es.options.displayUserStudyWebsites = () ->
+  mem0r1es.options.sendMessage "userStudyToolbox", {title: "getUserStudyWebsites"}, (websites) ->
+    while userStudyWebsitesBody.hasChildNodes()
+      userStudyWebsitesBody.removeChild(userStudyWebsitesBody.lastChild);
+    
+    count = 0
+    for websiteId, website of websites
+      count++
+      websiteNode = document.createElement "tr"
+      title = document.createElement "td"
+      pattern = document.createElement "td"
+      actions = document.createElement "td"
+      deleteWebsiteButton = document.createElement "button"
+      deleteWebsiteButton.className = "ruleAction floatRight"
+      deleteWebsiteButton.id = "delete_website#{website.websiteId}"
+      deleteWebsiteButton.addEventListener 'click', () ->
+        mem0r1es.options.deleteWebsite parseInt(@id.substring(14),10)
+      title.appendChild(document.createTextNode website.title)
+      pattern.appendChild(document.createTextNode website.pattern)
+      deleteWebsiteButton.appendChild(document.createTextNode "delete")
+      actions.appendChild deleteWebsiteButton
+      websiteNode.appendChild title
+      websiteNode.appendChild pattern
+      websiteNode.appendChild actions
+      userStudyWebsitesBody.appendChild websiteNode
+      
+    if count is 0
+      websiteNode = document.createElement "tr"
+      message = document.createElement "td"
+      message.setAttribute "colspan", "3"
+      message.className = "centered"
+      message.appendChild(document.createTextNode "No website selected for the study")
+      websiteNode.appendChild message
+      userStudyWebsitesBody.appendChild websiteNode
+      
+mem0r1es.options.deleteWebsite = (websiteId) ->
+  mem0r1es.options.sendMessage "userStudyToolbox", {title: "deleteUserStudyWebsite", content:websiteId}, () ->
+    mem0r1es.options.displayUserStudyWebsites()
+
+mem0r1es.options.saveUserStudyWebsite = () ->
+  website = {}
+  website.title = document.getElementById("userWebsiteTitle").value
+  website.pattern = document.getElementById("urlPattern").value
+  website.websiteId = new Date().getTime()
+  mem0r1es.options.sendMessage "userStudyToolbox", {title: "storeUserStudyWebsite", content:website}, () ->
+    $("#overlay").fadeOut()
+    $("#userStudyWebsiteForm").fadeOut()
+    mem0r1es.options.displayUserStudyWebsites()
+    
+mem0r1es.options.initializeUserStudyWebsite = () ->
+  document.getElementById('saveUserStudyWebsite').addEventListener 'click', mem0r1es.options.saveUserStudyWebsite
+  document.getElementById('createUserStudyWebsiteButton').addEventListener 'click', () ->
+    document.getElementById("userWebsiteTitle").value = ""
+    document.getElementById("urlPattern").value = ""
+    $("#overlay").fadeIn()
+    $("#userStudyWebsiteForm").fadeIn()
+  document.getElementById('cancelUserStudyWebsite').addEventListener 'click', () ->
+    $("#overlay").fadeOut()
+    $("#userStudyWebsiteForm").fadeOut()
+  document.getElementById('closeUserStudyWebsiteOverlay').addEventListener 'click', () ->
+    $("#overlay").fadeOut()
+    $("#userStudyWebsiteForm").fadeOut()
+  mem0r1es.options.displayUserStudyWebsites()
+
+mem0r1es.options.initializeOptions = () ->
+  mem0r1es.options.initializeRules()
+  mem0r1es.options.initializeUserStudyWebsite()
+  return
   
-document.addEventListener 'DOMContentLoaded', mem0r1es.options.initialize
+document.addEventListener 'DOMContentLoaded', mem0r1es.options.initializeOptions

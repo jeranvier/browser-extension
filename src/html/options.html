@@ -3,54 +3,72 @@
     <title>Mem0r1es options</title>
     <link rel="stylesheet" media="all" href="../css/options.css">
     <script src = "../js/options.js" ></script>
+    <script src="../external/jquery-1.8.3.min.js"></script>
     
   </head>
   <body>
     <div class = "overlay" id = "overlay">
-      <div class = "form">
+      <div class = "form" id="ruleForm">
         <div id="closeRuleOverlay" class="close">&#9747;</div>
         <input type = "hidden" id = "ruleId" />
         <table class = "formInputs">
-        <tr>
-          <td class = "label">
-            Name of the feature:
-          </td>
-          <td>
-            <input type = "text" id = "name" />
-          </td>
-        </tr>
-        <tr>
-          <td class = "label">
-            URL pattern to include:
-          </td>
-          <td>
-            <input type = "text" id = "includes" />
-          </td>
-        </tr>
-        <tr>
-          <td class = "label">
-            URL pattern to exclude:
-          </td>
-          <td>
-            <input type = "text" id = "excludes" />
-          </td>
-        </tr>
-        <tr>
-          <td class = "label">
-            Function(s) to execute:
-          </td>
-          <td>
-            <textarea id = "exec" ></textarea>
-          </td>
-        </tr>
+          <tr>
+          <td class = "label">Name of the feature:</td>
+            <td><input type = "text" id = "name" /></td>
+          </tr>
+          <tr>
+            <td class = "label">URL pattern to include:</td>
+            <td><input type = "text" id = "includes" /></td>
+          </tr>
+          <tr>
+            <td class = "label">URL pattern to exclude:</td>
+            <td><input type = "text" id = "excludes" /></td>
+          </tr>
+          <tr>
+            <td class = "label">Function(s) to execute:</td>
+            <td><textarea id = "exec" ></textarea></td>
+          </tr>
         </table>
         <div id = "status"></div>
-        <button id = "save">Save</button><button id = "cancel">Cancel</button>
+        <button id = "saveRule">Save</button><button id = "cancelRule">Cancel</button>
       </div>
+      
+      <div class = "form" id="userStudyWebsiteForm">
+        <div id="closeUserStudyWebsiteOverlay" class="close">&#9747;</div>
+        <input type = "hidden" id = "websiteId" />
+        <table class = "formInputs">
+          <tr>
+          <td class = "label">Title of the website:</td>
+            <td><input type = "text" id = "userWebsiteTitle" /></td>
+          </tr>
+          <tr>
+            <td class = "label">URL pattern:</td>
+            <td><input type = "text" id = "urlPattern" /></td>
+          </tr>
+        </table>
+        <button id = "saveUserStudyWebsite">Save</button><button id = "cancelUserStudyWebsite">Cancel</button>
+      </div>
+      
     </div>
     
-    <button id = "createButton">Create New Rule</button>
-    <table id = "rules" class= "rules">
+    <h2>User study</h2>
+    <h3>Website selected for the study</h3> 
+    <table id = "userStudyWebsites">
+      <thead>
+        <tr>
+          <th>Title</th>
+          <th>Pattern</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id = "userStudyWebsitesBody">
+      </tbody>
+    </table>
+
+<button id = "createUserStudyWebsiteButton" class="floatRight">Add new website</button>   
+    
+    <h2>Domain specific rules</h2>
+    <table id = "rules">
       <thead>
         <tr>
           <th>Feature</th>
@@ -63,5 +81,6 @@
       <tbody id = "rulesBody">
       </tbody>
     </table>
+    <button id = "createRuleButton" class="floatRight">Create New Rule</button>
   </body>
 </html>

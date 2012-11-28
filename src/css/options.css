@@ -1,17 +1,40 @@
 body{
   font-family : verdana,helvetica,arial,sans-serif;
+  width:1000px;
+  margin:auto;
+}
+
+.floatRight{
+  float:right;
+}
+
+.centered{
+  text-align:center;
+}
+
+table.formInputs{
+  position:relative;
+  border-collapse:collapse;
+  width:100%;
+  margin: auto;
+  
+}
+
+table.formInputs tr{
+  border:0px;
 }
 
 button{
 	width:180px;
 	height:30px;
 	border:0px;
-	font-family:'Courier New';
+	font-family:verdana,helvetica,arial,sans-serif;
 	font-size:14px;
 	color:#FFFFFF;
 	background-color:#999999;
-	margin:7px;
+	margin:7px 0px 7px 10px;
 	border-radius: 5px;
+  cursor:pointer;
 }
 
 .ruleAction{
@@ -22,13 +45,11 @@ button:hover{
 	background-color:#CCCCCC;
 }
 
-table.rules{
-  position:relative;
-  border-collapse:collapse;
-  width:800px;
-}
 
 table{
+  position:relative;
+  border-collapse:collapse;
+  width:100%;
   margin: auto;
 }
 
@@ -44,8 +65,12 @@ thead{
 	background-color:#999999;
 }
 
+thead th{
+  border:1px solid #ffffff;
+}
+
 tr{
-  border:1px solid #999999;
+  border-top:1px solid #CCCCCC;
 }
 
 div.overlay{
@@ -68,6 +93,8 @@ div .form{
   border-radius: 20px;
   border:15px solid rgba(100,100,100,0.8);
   padding:20px;
+  background-color:#ffffff;
+  display:none;
 }
 
 div.close{
@@ -86,4 +113,16 @@ div.close{
 
 div.close:hover{
   color:#000000;
+}
+
+h2{
+  clear:both;
+  color:#999999;
+  border-bottom:2px solid #999999;
+}
+
+h3{
+  clear:both;
+  color:#999999;
+  border-bottom:1px solid #CCCCCC;
 }
