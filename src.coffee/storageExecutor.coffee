@@ -42,20 +42,38 @@ class window.mem0r1es.StorageExecutor
   #Stores an object corresponding to a page browsing in the datastore
   # callback is optional and is here to notify the caller that the object has been successfully inserted
   store : (storeName, value, callback)->
-    trans = @db.transaction [storeName], "readwrite"
-    store = trans.objectStore storeName
-    request = store.put value
-    
-    request.onsuccess = (event) ->
-      #console.log "#{value} [STORED]"
-      if callback?
-        try
-          callback event.target.result
-        catch error
-      return
-    
-    request.onerror = @onerror
-    
+    if value._children?
+      count = value._children.length
+      for child in value._children
+        store child.objectStore value[child.name], () ->
+          delete value[child.name]
+          if count == 1
+            delete value._children
+            trans = @db.transaction [storeName], "readwrite"
+            store = trans.objectStore storeName
+            request = store.put value
+            request.onsuccess = (event) ->
+              if callback?
+                try
+                  callback event.target.result
+                catch error
+              return
+            
+            request.onerror = @onerror
+          else
+            count--
+    else
+      trans = @db.transaction [storeName], "readwrite"
+      store = trans.objectStore storeName
+      request = store.put value
+      request.onsuccess = (event) ->
+        if callback?
+          try
+            callback event.target.result
+          catch error
+        return
+      
+      request.onerror = @onerror
     return
     
   get : (query, callback) ->
@@ -71,14 +89,31 @@ class window.mem0r1es.StorageExecutor
       request = index.openCursor(query.keyRange)
     else
       request = index.openCursor()
-    request.onsuccess = (event) ->
+    request.onsuccess = (event) =>
       cursor = event.target.result
       if cursor?
         if query.accept cursor.value
           results.push cursor.value
         cursor.continue()
       else
-        callback results
+        if query.children? and query.children.length isnt 0
+          count = results.length * query.children.length
+          for result in results
+            result._children = query.children
+            for child in query.children
+              @get new mem0r1es.Query().from(child.objectStore).where("_#{store.keyPath}", "equals", result[store.keyPath]), (subResults) ->
+                if subResults.length isnt 1
+                  result[child.name] = subResults
+                else
+                  result[child.name] = subResults[0]
+                
+                if count is 1
+                  callback results
+                else
+                  count--
+                return
+        else        
+          callback results
     return
   
   count : (storeName, callback) ->

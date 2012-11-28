@@ -10,7 +10,7 @@ class window.mem0r1es.StorageManager
     @SE = new mem0r1es.StorageExecutor
     @db = null
     @dbName = "mem0r1es"
-    @version = 3
+    @version = 1
     @ready = false
     console.log "StorageManager ready"
   
@@ -37,14 +37,18 @@ class window.mem0r1es.StorageManager
           #temporary.createIndex("j", "j", { unique: false, multiEntry: true })
           
         if not @db.objectStoreNames.contains "parameters"
-          parameters = @db.createObjectStore "parameters", { keyPath: "key" }
+          parameters = @db.createObjectStore "parameters", { keyPath: "parameterId" }
           
         if not @db.objectStoreNames.contains "labels"
           labels = @db.createObjectStore "labels", { keyPath: "labelId", autoIncrement: true }
           
         if not @db.objectStoreNames.contains "userStudySessions"
-          userStudySessions = @db.createObjectStore "userStudySessions", { keyPath: "timestamp" }
-
+          userStudySessions = @db.createObjectStore "userStudySessions", { keyPath: "userStudySessionId" }
+          
+        if not @db.objectStoreNames.contains "userActions"
+          userActions = @db.createObjectStore "userActions", { keyPath: "userActionId" }
+          userActions.createIndex("_pageId", "_pageId")
+          
         event.target.transaction.oncomplete = () =>
           console.log "database created/updated and ready"
           @SE.setDb @db

@@ -56,7 +56,7 @@ class window.mem0r1es.UserStudyToolbox
     @updateLastActivityTime()
     
   getUserStudyWebsites : (sendResponse) ->
-    query = new mem0r1es.Query().from("parameters").where("key", "equals", "userStudyWebsites")
+    query = new mem0r1es.Query().from("parameters").where("parameterId", "equals", "userStudyWebsites")
     @storageManager.get query, (results) ->
       if results.length is 1
         sendResponse results[0].value
@@ -70,9 +70,9 @@ class window.mem0r1es.UserStudyToolbox
   deleteUserStudyWebsite : (websiteId, sendResponse) =>
     @getUserStudyWebsites (websites) =>
       delete websites[websiteId]
-      @storageManager.store "parameters", {key:"userStudyWebsites", value:websites}, sendResponse
+      @storageManager.store "parameters", {parameterId:"userStudyWebsites", value:websites}, sendResponse
     
   storeUserStudyWebsite : (website, sendResponse) =>
     @getUserStudyWebsites (websites) =>
       websites[website.websiteId] = website
-      @storageManager.store "parameters", {key:"userStudyWebsites", value:websites}, sendResponse
+      @storageManager.store "parameters", {parameterId:"userStudyWebsites", value:websites}, sendResponse

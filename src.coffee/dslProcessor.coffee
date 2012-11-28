@@ -34,7 +34,7 @@ class window.mem0r1es.DSLProcessor
     for ruleId, rule of @DSRules
       delete rule.includesRE
       delete rule.excludesRE
-    @storageManager.store "parameters", {key : "DSRules", value: @DSRules}, () =>
+    @storageManager.store "parameters", {parameterId : "DSRules", value: @DSRules}, () =>
       @retrieveRules (results) =>
         if results.length is 1
           @DSRules = results[0].value
@@ -48,7 +48,7 @@ class window.mem0r1es.DSLProcessor
     return
       
   retrieveRules : (sendResponse) ->
-    query = new mem0r1es.Query().from("parameters").where("key", "equals", "DSRules")
+    query = new mem0r1es.Query().from("parameters").where("parameterId", "equals", "DSRules")
     @storageManager.get query, sendResponse
     return
     

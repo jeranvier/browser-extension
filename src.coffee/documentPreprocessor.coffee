@@ -61,8 +61,7 @@ class window.mem0r1es.DocumentPreprocessor
   createEvent : (message, sendResponse) ->
     if message.content.event.type is "unload"
       @sendResponse = sendResponse
-    if not @document.userEvents
-      @document.userEvents = new Array()
-    @document.userEvents.push message.content.event
-    if @isReadyToStore()
-      @storetemporaryDocument(sendResponse)
+    userAction = message.content.event
+    userAction._pageId = @pageId
+    userAction.userActionId = "#{userAction.type}_#{new Date().getTime()}_#{Math.floor(Math.random()*100)}"
+    @storageManager.store "userActions", userAction, sendResponse

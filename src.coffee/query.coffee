@@ -36,6 +36,13 @@ class window.mem0r1es.Query
       when "between"
         @andConditions.push "#{firstBound}<#{if not firstOpen then "=" else ""}candidate.#{key}<#{if not secondOpen then "=" else ""}#{secondBound}"
     return @
+  
+  # when the query is processed, the storageManager should retrieve the children objects
+  # with the foreign key corresponding to the queried object's PK
+  #children is a Js array such as [{name:"userAction", objectStore:"userActions"}]
+  getChildren : (children)->
+    @children = children
+    return @
     
   accept : (candidate) ->
     for condition in @andConditions
