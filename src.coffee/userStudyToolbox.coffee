@@ -49,5 +49,5 @@ class window.mem0r1es.UserStudyToolbox
     
   checkIfNeedNewContext : () ->
     if (new Date().getTime() - @getLastActivityTime())>10*1000*60
-      chrome.tabs.create 'url': chrome.extension.getURL('html/sessionInfo.html')
+      chrome.tabs.create {'url': chrome.extension.getURL('html/sessionInfo.html'), pinned:true}
     @updateLastActivityTime()
