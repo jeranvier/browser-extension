@@ -92,7 +92,7 @@ mem0r1es.injectable.createNewMem0r1e = () ->
     }, null
  
 mem0r1es.injectable.loadDSRules = () ->
-  mem0r1es.injectable.sendMessage "DSLProcessor", {title : "getRules"}, mem0r1es.injectable.DSRulesHandler
+  mem0r1es.injectable.sendMessage "DSLProcessor", {title : "getRulesForURL"}, mem0r1es.injectable.DSRulesHandler
   return
 
 mem0r1es.injectable.DSRulesHandler = (DSRules) ->

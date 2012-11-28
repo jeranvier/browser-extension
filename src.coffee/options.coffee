@@ -10,13 +10,11 @@ mem0r1es.options.sendMessage = (module, message, callback)->
   return
   
 mem0r1es.options.displayRules = () ->
-  mem0r1es.options.sendMessage "DSLProcessor", {title: "retrieveRules"}, (results) ->
+  mem0r1es.options.sendMessage "DSLProcessor", {title: "getAllRules"}, (DSRules) ->
     rulesBodyNode = document.getElementById "rulesBody"
-    
     while rulesBodyNode.hasChildNodes()
       rulesBodyNode.removeChild(rulesBodyNode.lastChild);
-      
-    for rule in results
+    for ruleId, rule of DSRules
       ruleNode = document.createElement "tr"
       name = document.createElement "td"
       includes = document.createElement "td"
@@ -49,7 +47,7 @@ mem0r1es.options.displayRules = () ->
       rulesBodyNode.appendChild ruleNode
 
 mem0r1es.options.editRule = (ruleId) ->
-  mem0r1es.options.sendMessage "DSLProcessor", {title: "getRule", content:{ruleId: ruleId}}, (rule) ->
+  mem0r1es.options.sendMessage "DSLProcessor", {title: "getSpecificRule", content:{ruleId: ruleId}}, (rule) ->
     document.getElementById("ruleId").value = ruleId
     document.getElementById("name").value = rule.name
     document.getElementById("includes").value = rule.includes
@@ -61,10 +59,10 @@ mem0r1es.options.editRule = (ruleId) ->
   
 mem0r1es.options.deleteRule = (ruleId) ->
   mem0r1es.options.sendMessage "DSLProcessor", {title: "deleteRule", content:{ruleId: ruleId}}, (result) ->
-      if result.id is ruleId and result.status is "deleted"
-        mem0r1es.options.displayRules()
-      else
-        alert "something went wrong while deleting the rule #{result.id}"
+    if result.id is ruleId and result.status is "deleted"
+      mem0r1es.options.displayRules()
+    else
+      alert "something went wrong while deleting the rule #{result.id}"
   return
       
 mem0r1es.options.saveRule = () ->
