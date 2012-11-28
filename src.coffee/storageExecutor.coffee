@@ -12,8 +12,7 @@ class window.mem0r1es.StorageExecutor
   
   clearDatabase: (sendResponse)->
     @clearStore "temporary"
-    @clearStore "consolidated"
-    @clearStore "DSRules"
+    @clearStore "parameters"
     @clearStore "labels"
     @clearStore "userStudySessions"
     sendResponse {message:{title:"message from networkManager", content:"Database cleared", level:"success"}}
