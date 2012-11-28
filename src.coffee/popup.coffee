@@ -21,7 +21,7 @@ class window.mem0r1es.Popup
       return
     , false
     
-    document.getElementById("DSRulesButton").addEventListener "click", ()=>
+    document.getElementById("optionsButton").addEventListener "click", ()=>
       chrome.tabs.create 'url': chrome.extension.getURL('html/options.html')
     , false
     
