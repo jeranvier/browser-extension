@@ -45,23 +45,26 @@ class window.mem0r1es.StorageExecutor
     if value._children?
       count = value._children.length
       for child in value._children
-        store child.objectStore value[child.name], () ->
-          delete value[child.name]
-          if count == 1
-            delete value._children
-            trans = @db.transaction [storeName], "readwrite"
-            store = trans.objectStore storeName
-            request = store.put value
-            request.onsuccess = (event) ->
-              if callback?
-                try
-                  callback event.target.result
-                catch error
-              return
-            
-            request.onerror = @onerror
-          else
-            count--
+        do(child) =>
+          @store child.objectStore value[child.name], () ->
+            delete value[child.name]
+            if count == 1
+              delete value._children
+              trans = @db.transaction [storeName], "readwrite"
+              store = trans.objectStore storeName
+              request = store.put value
+              request.onsuccess = (event) ->
+                if callback?
+                  try
+                    callback event.target.result
+                  catch error
+                return
+              
+              request.onerror = @onerror
+            else
+              count--
+            return
+          return
     else
       trans = @db.transaction [storeName], "readwrite"
       store = trans.objectStore storeName
@@ -101,16 +104,17 @@ class window.mem0r1es.StorageExecutor
           for result in results
             result._children = query.children
             for child in query.children
-              @get new mem0r1es.Query().from(child.objectStore).where("_#{store.keyPath}", "equals", result[store.keyPath]), (subResults) ->
-                if subResults.length isnt 1
-                  result[child.name] = subResults
-                else
-                  result[child.name] = subResults[0]
-                
-                if count is 1
-                  callback results
-                else
-                  count--
+              do(child) =>
+                @get new mem0r1es.Query().from(child.objectStore).where("_#{store.keyPath}", "equals", result[store.keyPath]), (subResults) ->
+                  if subResults.length isnt 1
+                    result[child.name] = subResults
+                  else
+                    result[child.name] = subResults[0]
+                  if count is 1
+                    callback results
+                  else
+                    count--
+                  return
                 return
         else        
           callback results
