@@ -15,6 +15,8 @@ class window.mem0r1es.StorageExecutor
     @clearStore "parameters"
     @clearStore "labels"
     @clearStore "userStudySessions"
+    @clearStore "screenshots"
+    @clearStore "userActions"
     sendResponse {message:{title:"message from networkManager", content:"Database cleared", level:"success"}}
   
   #Clears all the data from a specific store and send an ack to the popup
