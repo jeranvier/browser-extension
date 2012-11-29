@@ -6,7 +6,7 @@ class window.mem0r1es.DocumentPreprocessor
     @pageId = @message.content.pageId
     @document = {}
     @currentNumberOfFetchedFeatures = 0
-    @numberOfFetchedFeatures = 7
+    @numberOfFetchedFeatures = 6
     console.log "new Document processor created to handle the mem0r1e from #{sender.tab.url} (#{@pageId})"
     @preprocessMem0r1e()
   
@@ -42,7 +42,7 @@ class window.mem0r1es.DocumentPreprocessor
     
   takeScreenshot : (windowID, tab) =>
     chrome.tabs.captureVisibleTab windowID, {quality : 10, format : "jpeg"}, (dataUrl) =>
-      @set "screenshot", dataUrl
+      @storageManager.store "screenshots", {screenshotId:@pageId, _pageId:@pageId, screenshot:dataUrl}
       return
     return
     

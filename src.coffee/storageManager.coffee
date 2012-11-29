@@ -10,7 +10,7 @@ class window.mem0r1es.StorageManager
     @SE = new mem0r1es.StorageExecutor
     @db = null
     @dbName = "mem0r1es"
-    @version = 1
+    @version = 2
     @ready = false
     console.log "StorageManager ready"
   
@@ -48,6 +48,10 @@ class window.mem0r1es.StorageManager
         if not @db.objectStoreNames.contains "userActions"
           userActions = @db.createObjectStore "userActions", { keyPath: "userActionId" }
           userActions.createIndex("_pageId", "_pageId")
+                  
+        if not @db.objectStoreNames.contains "screenshots"
+          screenshots = @db.createObjectStore "screenshots", { keyPath: "screenshotId" }
+          screenshots.createIndex("_pageId", "_pageId")
           
         event.target.transaction.oncomplete = () =>
           console.log "database created/updated and ready"
