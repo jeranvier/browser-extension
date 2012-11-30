@@ -177,6 +177,13 @@ mem0r1es.options.initializeUserStudyWebsite = () ->
   document.getElementById('closeUserStudyWebsiteOverlay').addEventListener 'click', () ->
     $("#overlay").fadeOut()
     $("#userStudyWebsiteForm").fadeOut()
+  document.getElementById('extractUserStudyButton').addEventListener 'click', () ->
+    mem0r1es.options.sendMessage "userStudyToolbox", {title: "dumpData"}, (dump) ->
+        xmlhttp=new XMLHttpRequest()
+        xmlhttp.open "POST", "http://127.0.0.1:8080/", true
+        xmlhttp.setRequestHeader "Content-type", "application/json"
+        xmlhttp.send(JSON.stringify(dump))
+    
   mem0r1es.options.displayUserStudyWebsites()
 
 mem0r1es.options.initializeOptions = () ->

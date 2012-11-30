@@ -10,7 +10,7 @@ class window.mem0r1es.StorageManager
     @SE = new mem0r1es.StorageExecutor
     @db = null
     @dbName = "mem0r1es"
-    @version = 2
+    @version = 1
     @ready = false
     console.log "StorageManager ready"
   
@@ -33,7 +33,7 @@ class window.mem0r1es.StorageManager
         console.log "creating/updating database #{@dbName}"
         if not @db.objectStoreNames.contains "temporary"
           temporary = @db.createObjectStore "temporary", { keyPath: "pageId" }
-          #temporary.createIndex("b", "b", { unique: false })
+          temporary.createIndex("URL", "URL")
           #temporary.createIndex("j", "j", { unique: false, multiEntry: true })
           
         if not @db.objectStoreNames.contains "parameters"

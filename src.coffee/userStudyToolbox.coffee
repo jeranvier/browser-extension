@@ -15,7 +15,8 @@ class window.mem0r1es.UserStudyToolbox
         when "newActivity" then @checkIfNeedNewContext sendResponse
         when "getUserStudyWebsites" then @getUserStudyWebsites sendResponse
         when "storeUserStudyWebsite" then @storeUserStudyWebsite message.content, sendResponse
-        when "deleteUserStudyWebsite" then @deleteUserStudyWebsite message.content, sendResponse       
+        when "deleteUserStudyWebsite" then @deleteUserStudyWebsite message.content, sendResponse 
+        when "dumpData" then @dumpData sendResponse         
     return
     
   addLabel : (messageContent, sendResponse) =>
@@ -36,6 +37,7 @@ class window.mem0r1es.UserStudyToolbox
   saveSession : (messageContent, sendResponse) =>
     @storageManager.store "userStudySessions", messageContent, () =>
       @updateLastActivityTime()
+      localStorage.setItem 'lastUserStudySessionId', messageContent.userStudySessionId
       sendResponse()
     return
     
@@ -76,3 +78,34 @@ class window.mem0r1es.UserStudyToolbox
     @getUserStudyWebsites (websites) =>
       websites[website.websiteId] = website
       @storageManager.store "parameters", {parameterId:"userStudyWebsites", value:websites}, sendResponse
+      
+  dumpData : (sendResponse) ->
+    console.log "dumping data for user study"
+    dump = {}
+    lastDump = localStorage.getItem 'lastActivityTime'
+    if lastDump is null
+      lastDump = 0
+    
+    @getUserStudyWebsites (websites) =>
+      count = Object.keys(websites).length
+      for websiteId, website of websites
+        do (website) =>
+          query = new mem0r1es.Query().from("temporary").where("URL", "between", "#{website.pattern}", false , "#{website.pattern.slice 0,-1}#{String.fromCharCode(website.pattern.charCodeAt(website.pattern.length-1)+1) }", true).getChildren [{name:"userAction", objectStore:"userActions"},{name:"screenshot", objectStore:"screenshots"}]
+          
+          @storageManager.get query, (results) =>
+            subcount = results.length
+            for result in results
+              do(result) =>
+                query = new mem0r1es.Query().from("userStudySessions").where("userStudySessionId", "equals", parseInt(result._userStudySessionId, 10))
+                @storageManager.get query, (subResults) =>
+                  result.userStudySession = subResults[0]
+                  if subcount is 1
+                    dump[website.title] = results
+                    if count is 1
+                      sendResponse dump
+                    else
+                      count--
+                  else
+                    subcount--
+              
+    

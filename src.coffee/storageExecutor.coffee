@@ -109,13 +109,10 @@ class window.mem0r1es.StorageExecutor
               for child in query.children
                 do(child) =>
                   @get new mem0r1es.Query().from(child.objectStore).where("_#{store.keyPath}", "equals", result[store.keyPath]), (subResults) ->
-                    console.log new mem0r1es.Query().from(child.objectStore).where("_#{store.keyPath}", "equals", result[store.keyPath]).toString()
-                    console.log subResults
                     if subResults.length isnt 1
                       result[child.name] = subResults
                     else
                       result[child.name] = subResults[0]
-                    console.log count
                     if count is 1
                       callback results
                     else

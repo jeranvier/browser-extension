@@ -3,10 +3,11 @@ window.mem0r1es = {} if not window.mem0r1es?
 class window.mem0r1es.DocumentPreprocessor
 
   constructor : (@message, @sender, @sendResponse, @storageManager) ->
+    @dontStore = false
     @pageId = @message.content.pageId
     @document = {}
     @currentNumberOfFetchedFeatures = 0
-    @numberOfFetchedFeatures = 6
+    @numberOfFetchedFeatures = 7
     console.log "new Document processor created to handle the mem0r1e from #{sender.tab.url} (#{@pageId})"
     @preprocessMem0r1e()
   
@@ -18,6 +19,11 @@ class window.mem0r1es.DocumentPreprocessor
     @set "timestamp", @message.content.timestamp
     @set "pageId", @message.content.pageId
     @set "DOM", @message.content.DOMtoJSON
+    lastUserStudySessionId = localStorage.getItem('lastUserStudySessionId')
+    if lastUserStudySessionId?
+      @set "_userStudySessionId", lastUserStudySessionId
+    else
+      @dontStore = true
     return
   
   getLanguage : (tab) =>
@@ -34,16 +40,18 @@ class window.mem0r1es.DocumentPreprocessor
     return
   
   storetemporaryDocument : (sendResponse = @sendResponse) ->
-    @storageManager.store "temporary", @document, sendResponse
+    if not @dontStore
+      @storageManager.store "temporary", @document, sendResponse
     return
   
   isReadyToStore : () ->
     return @currentNumberOfFetchedFeatures is @numberOfFetchedFeatures
     
   takeScreenshot : (windowID, tab) =>
-    chrome.tabs.captureVisibleTab windowID, {quality : 10, format : "jpeg"}, (dataUrl) =>
-      @storageManager.store "screenshots", {screenshotId:@pageId, _pageId:@pageId, screenshot:dataUrl}
-      return
+    if not @dontStore
+      chrome.tabs.captureVisibleTab windowID, {quality : 10, format : "jpeg"}, (dataUrl) =>
+        @storageManager.store "screenshots", {screenshotId:@pageId, _pageId:@pageId, screenshot:dataUrl}
+        return
     return
     
   update : (message, sendResponse) -> #TODO Handle the sendResponse
@@ -55,13 +63,14 @@ class window.mem0r1es.DocumentPreprocessor
     if not @document.DSFeatures
       @document.DSFeatures = new Array()
     @document.DSFeatures.push message.content.feature
-    if @isReadyToStore()
+    if @isReadyToStore() and not @dontStore
       @storetemporaryDocument(sendResponse)
   
   createEvent : (message, sendResponse) ->
     if message.content.event.type is "unload"
       @sendResponse = sendResponse
-    userAction = message.content.event
-    userAction._pageId = @pageId
-    userAction.userActionId = "#{userAction.type}_#{new Date().getTime()}_#{Math.floor(Math.random()*100)}"
-    @storageManager.store "userActions", userAction, sendResponse
+    if not @dontStore
+      userAction = message.content.event
+      userAction._pageId = @pageId
+      userAction.userActionId = "#{userAction.type}_#{new Date().getTime()}_#{Math.floor(Math.random()*100)}"
+      @storageManager.store "userActions", userAction, sendResponse
