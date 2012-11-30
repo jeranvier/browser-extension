@@ -97,7 +97,8 @@ class window.mem0r1es.StorageManager
     return
   
   clearDatabase: (sendResponse)->
-    @queue.push {method:@SE.clearDatabase, arguments:[sendResponse]}
+    @queue.push {method:@SE.deleteDB, arguments:[]}
+    @queue.push {method:@openDB, arguments:[]}
     @executeQueue()
     return
   
