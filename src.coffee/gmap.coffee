@@ -3,7 +3,6 @@ window.mem0r1es = {} if not window.mem0r1es?
 class window.mem0r1es.gmap
 
   constructor : () ->
-    @labels = ["home", "work", "friend", "superMmarket"]
     document.addEventListener 'DOMContentLoaded', () =>
       @createListeners()
     ,false

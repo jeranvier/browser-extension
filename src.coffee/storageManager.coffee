@@ -41,6 +41,9 @@ class window.mem0r1es.StorageManager
           
         if not @db.objectStoreNames.contains "labels"
           labels = @db.createObjectStore "labels", { keyPath: "labelId", autoIncrement: true }
+          labels.put {labelText: "Home"}
+          labels.put {labelText: "Work"}
+          console.log "initialized location labels"
           
         if not @db.objectStoreNames.contains "userStudySessions"
           userStudySessions = @db.createObjectStore "userStudySessions", { keyPath: "userStudySessionId" }
