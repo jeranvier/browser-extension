@@ -179,11 +179,16 @@ mem0r1es.options.initializeUserStudyWebsite = () ->
     $("#userStudyWebsiteForm").fadeOut()
   document.getElementById('extractUserStudyButton').addEventListener 'click', () ->
     mem0r1es.options.sendMessage "userStudyToolbox", {title: "dumpData"}, (dump) ->
-        xmlhttp=new XMLHttpRequest()
-        xmlhttp.open "POST", "http://127.0.0.1:8080/", true
-        xmlhttp.setRequestHeader "Content-type", "application/json"
-        xmlhttp.send(JSON.stringify(dump))
-    
+      #xmlhttp=new XMLHttpRequest()
+      #xmlhttp.open "POST", "http://127.0.0.1:8080/", true
+      #xmlhttp.setRequestHeader "Content-type", "application/json"
+      #xmlhttp.send(JSON.stringify(dump))
+      blob = new Blob [JSON.stringify(dump)], {type: 'application/json'}
+      downloadLink = document.getElementById("downloadDumpLink")
+      downloadLink.href = window.webkitURL.createObjectURL blob
+      $("#downloadDumpLink").fadeIn()
+      document.getElementById("dumpDatabaseParagraph").appendChild downloadLink
+
   mem0r1es.options.displayUserStudyWebsites()
 
 mem0r1es.options.initializeOptions = () ->

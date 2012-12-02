@@ -130,3 +130,9 @@ h3{
   color:#999999;
   border-bottom:1px solid #CCCCCC;
 }
+
+a#downloadDumpLink{
+  display:none;
+  margin:10px;
+  color:#000000;
+}
