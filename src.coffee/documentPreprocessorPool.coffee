@@ -4,6 +4,8 @@ class window.mem0r1es.DocumentPreprocessorPool
   
   constructor : (@storageManager) ->
     @documentPreprocessors = new Array()
+    chrome.tabs.onActivated.addListener (activeInfo) =>
+      @activeTab = {id:activeInfo.tabId, windowId : activeInfo.windowId}
     console.log "document preprocessor pool ready"
     
   #Handles messages received from background.js
@@ -16,8 +18,8 @@ class window.mem0r1es.DocumentPreprocessorPool
       else console.log "Could not understand the command #{message.title}"
     return
     
-  createDocumentPreprocessor : (message, sender, sendResponse) ->
-    @documentPreprocessors.push(new mem0r1es.DocumentPreprocessor message, sender, sendResponse, @storageManager)
+  createDocumentPreprocessor : (message, sender, sendResponse) =>
+    @documentPreprocessors.push(new mem0r1es.DocumentPreprocessor message, sender, sendResponse, @storageManager, @activeTab)
     return
     
   updateMem0r1e : (message, sender, sendResponse) =>
