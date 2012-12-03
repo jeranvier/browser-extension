@@ -15,62 +15,70 @@ class window.mem0r1es.StorageManager
     console.log "StorageManager ready"
   
   openDB : () ->
-    request = indexedDB.open @dbName
-    request.onsuccess = (event) =>
-      @db = event.target.result
-      @checkVersion()
-      return
-      
-    request.onfailure = @onerror
+    try
+      request = indexedDB.open @dbName
+      request.onsuccess = (event) =>
+        @db = event.target.result
+        @checkVersion()
+        return
+        
+      request.onfailure = @onerror
+    catch error
+      console.log error.message
+      console.log "Error while initializing database manager"
     return
     
   checkVersion : () ->
-    if parseInt(@version, 10) isnt parseInt(@db.version, 10)
-      setVersionrequest = @db.setVersion @version
-      setVersionrequest.onfailure = @onerror
-      
-      setVersionrequest.onsuccess = (event) =>
-        console.log "creating/updating database #{@dbName}"
-        if not @db.objectStoreNames.contains "temporary"
-          temporary = @db.createObjectStore "temporary", { keyPath: "pageId" }
-          temporary.createIndex("URL", "URL")
-          #temporary.createIndex("j", "j", { unique: false, multiEntry: true })
-          
-        if not @db.objectStoreNames.contains "parameters"
-          parameters = @db.createObjectStore "parameters", { keyPath: "parameterId" }
-          
-        if not @db.objectStoreNames.contains "labels"
-          labels = @db.createObjectStore "labels", { keyPath: "labelId", autoIncrement: true }
-          labels.put {labelText: "Home"}
-          labels.put {labelText: "Work"}
-          console.log "initialized location labels"
-          
-        if not @db.objectStoreNames.contains "userStudySessions"
-          userStudySessions = @db.createObjectStore "userStudySessions", { keyPath: "userStudySessionId" }
-          
-        if not @db.objectStoreNames.contains "userActions"
-          userActions = @db.createObjectStore "userActions", { keyPath: "userActionId" }
-          userActions.createIndex("_pageId", "_pageId")
-                  
-        if not @db.objectStoreNames.contains "screenshots"
-          screenshots = @db.createObjectStore "screenshots", { keyPath: "screenshotId" }
-          screenshots.createIndex("_pageId", "_pageId")
-          
-        event.target.transaction.oncomplete = () =>
-          console.log "database created/updated and ready"
-          @SE.setDb @db
-          @ready = true
-          @executeQueue()
+    try
+      if parseInt(@version, 10) isnt parseInt(@db.version, 10)
+        setVersionrequest = @db.setVersion @version
+        setVersionrequest.onfailure = @onerror
+        
+        setVersionrequest.onsuccess = (event) =>
+          console.log "creating/updating database #{@dbName}"
+          if not @db.objectStoreNames.contains "temporary"
+            temporary = @db.createObjectStore "temporary", { keyPath: "pageId" }
+            temporary.createIndex("URL", "URL")
+            #temporary.createIndex("j", "j", { unique: false, multiEntry: true })
+            
+          if not @db.objectStoreNames.contains "parameters"
+            parameters = @db.createObjectStore "parameters", { keyPath: "parameterId" }
+            
+          if not @db.objectStoreNames.contains "labels"
+            labels = @db.createObjectStore "labels", { keyPath: "labelId", autoIncrement: true }
+            labels.put {labelText: "Home"}
+            labels.put {labelText: "Work"}
+            console.log "initialized location labels"
+            
+          if not @db.objectStoreNames.contains "userStudySessions"
+            userStudySessions = @db.createObjectStore "userStudySessions", { keyPath: "userStudySessionId" }
+            
+          if not @db.objectStoreNames.contains "userActions"
+            userActions = @db.createObjectStore "userActions", { keyPath: "userActionId" }
+            userActions.createIndex("_pageId", "_pageId")
+                    
+          if not @db.objectStoreNames.contains "screenshots"
+            screenshots = @db.createObjectStore "screenshots", { keyPath: "screenshotId" }
+            screenshots.createIndex("_pageId", "_pageId")
+            
+          event.target.transaction.oncomplete = () =>
+            console.log "database created/updated and ready"
+            @SE.setDb @db
+            @ready = true
+            @executeQueue()
+            return
+            
+          event.target.transaction.onerror = @onerror
+            
           return
-          
-        event.target.transaction.onerror = @onerror
-          
-        return
-    else
-      console.log "data store ready"
-      @SE.setDb @db
-      @ready = true
-      @executeQueue()
+      else
+        console.log "data store ready"
+        @SE.setDb @db
+        @ready = true
+        @executeQueue()
+    catch error
+      console.log error.message
+      console.log "error while creating database"
     return
     
   onerror : () ->
