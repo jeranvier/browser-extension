@@ -1,87 +1,125 @@
 <html>
   <head>
     <title>Mem0r1es options</title>
-    <link rel="stylesheet" media="all" href="../css/options.css">
+    <link href="../external/css/bootstrap.css" rel="stylesheet" media="screen">
     <script src = "../js/options.js" ></script>
     <script src="../external/js/jquery-1.8.3.js"></script>
+    <script src="../external/js/bootstrap.js"></script>
     
   </head>
   <body>
-    <div class = "overlay" id = "overlay">
-      <div class = "form" id="ruleForm">
-        <div id="closeRuleOverlay" class="close">&#9747;</div>
-        <input type = "hidden" id = "ruleId" />
-        <table class = "formInputs">
-          <tr>
-          <td class = "label">Name of the feature:</td>
-            <td><input type = "text" id = "name" /></td>
-          </tr>
-          <tr>
-            <td class = "label">URL pattern to include:</td>
-            <td><input type = "text" id = "includes" /></td>
-          </tr>
-          <tr>
-            <td class = "label">URL pattern to exclude:</td>
-            <td><input type = "text" id = "excludes" /></td>
-          </tr>
-          <tr>
-            <td class = "label">Function(s) to execute:</td>
-            <td><textarea id = "exec" ></textarea></td>
-          </tr>
-        </table>
-        <div id = "status"></div>
-        <button id = "saveRule">Save</button><button id = "cancelRule">Cancel</button>
+    <div class="modal hide fade" id="ruleForm">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="ruleFormLabel">Domain specific rule</h3>
       </div>
-      
-      <div class = "form" id="userStudyWebsiteForm">
-        <div id="closeUserStudyWebsiteOverlay" class="close">&#9747;</div>
-        <input type = "hidden" id = "websiteId" />
-        <table class = "formInputs">
-          <tr>
-          <td class = "label">Title of the website:</td>
-            <td><input type = "text" id = "userWebsiteTitle" /></td>
-          </tr>
-          <tr>
-            <td class = "label">URL Prefix:</td>
-            <td><input type = "text" id = "urlPattern" /></td>
-          </tr>
-        </table>
-        <button id = "saveUserStudyWebsite">Save</button><button id = "cancelUserStudyWebsite">Cancel</button>
+      <div class="modal-body">
+        <div class="form-horizontal">
+        
+          <input type = "hidden" id="ruleId">
+          <div class="control-group">
+            <label class="control-label" for="name">Name of the feature</label>
+            <div class="controls">
+              <input type="text" id="name" placeholder="name...">
+            </div>
+          </div>
+          
+          <div class="control-group">
+            <label class="control-label" for="includes">URL pattern to include</label>
+            <div class="controls">
+              <input type = "text" id="includes" placeholder="www\..*\.com">
+            </div>
+          </div>
+          
+          <div class="control-group">
+            <label class="control-label" for="excludes">URL pattern to exclude</label>
+            <div class="controls">
+              <input type = "text" id="excludes" placeholder="www\..*\.org">
+            </div>
+          </div>
+          
+          <div class="control-group">
+            <label class="control-label" for="exec">Function(s) to execute</label>
+            <div class="controls">
+              <textarea id="exec" ></textarea>
+            </div>
+          </div>
+          
+        </div> 
       </div>
-      
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button class="btn btn-primary" id="saveRule">Save</button>
+      </div>
     </div>
     
-    <h2>User study</h2>
-    <p id="dumpDatabaseParagraph">extract information for the user study: <button id = "extractUserStudyButton" class="bold">Extract</button><a download="extracted_mem0r1es.json" id="downloadDumpLink">download</a></p>
-    <h3>Website selected for the study</h3> 
-    <table id = "userStudyWebsites">
-      <thead>
-        <tr>
-          <th>Title</th>
-          <th>Prefix</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody id = "userStudyWebsitesBody">
-      </tbody>
-    </table>
-
-<button id = "createUserStudyWebsiteButton" class="floatRight">Add new website</button>   
+    <div class="modal hide fade" id="userStudyWebsiteForm">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h3 id="userStudyWebsiteFormLabel">User study website</h3>
+      </div>
+      <div class="modal-body">
+        <div class="form-horizontal">
+        
+          <input type = "hidden" id="ruleId">
+          <div class="control-group">
+            <label class="control-label" for="userWebsiteTitle">Title of the website</label>
+            <div class="controls">
+              <input type = "text" id="userWebsiteTitle" placeholder="name...">
+            </div>
+          </div>
+          
+          <div class="control-group">
+            <label class="control-label" for="urlPattern">URL Prefix</label>
+            <div class="controls">
+              <input type = "text" id="urlPattern" placeholder="http://www.mywebsite">
+            </div>
+          </div>
+          
+        </div> 
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button class="btn btn-primary" id="saveUserStudyWebsite">Save</button>
+      </div>
+    </div>
     
-    <h2>Domain specific rules</h2>
-    <table id = "rules">
-      <thead>
-        <tr>
-          <th>Feature</th>
-          <th>Includes</th>
-          <th>Excludes</th>
-          <th>Functions</th>
-          <th>action</th>
-        </tr>
-      </thead>
-      <tbody id = "rulesBody">
-      </tbody>
-    </table>
-    <button id = "createRuleButton" class="floatRight">Create New Rule</button>
+    <div class="container">
+      <h2>User study</h2>
+      <h4>Extract information for the user study</h4>
+      <p>
+      <a id="extractUserStudyLink" class="btn btn-primary">Extract</a>
+      <a download="extracted_mem0r1es.json" class="hide btn btn-success" id="downloadDumpLink">download</a>
+      </p>
+      <h4>Website selected for the study</h4> 
+      <table id="userStudyWebsites" class="table table-striped">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Prefix</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="userStudyWebsitesBody">
+        </tbody>
+      </table>  
+      <a href="#userStudyWebsiteForm" role="button" class="btn btn-primary" data-toggle="modal" id="addUserStudyWebsitesLink">Add new website</a>
+      
+      <h2>Domain specific rules</h2>
+      <table id="rules" class="table table-striped">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th>Includes</th>
+            <th>Excludes</th>
+            <th>Functions</th>
+            <th>action</th>
+          </tr>
+        </thead>
+        <tbody id="rulesBody">
+        </tbody>
+      </table>
+      <a href="#ruleForm" role="button" class="btn btn-primary" data-toggle="modal" id="addDSRuleLink">Create New Rule</a>
+    </div>
   </body>
 </html>
