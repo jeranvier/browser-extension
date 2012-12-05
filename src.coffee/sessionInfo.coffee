@@ -6,9 +6,6 @@ class window.mem0r1es.sessionInfo
     document.addEventListener 'DOMContentLoaded', @createListeners
     document.addEventListener 'DOMContentLoaded', @initializeCamera
     document.addEventListener 'DOMContentLoaded', @getCoordinate
-    document.addEventListener 'DOMContentLoaded', () ->
-      document.getElementById("photoBooth").style.display="block"
-      document.getElementById("gotoPhotoBooth").classList.add "selected"
     
   #Send message from the popup (UI) to the extension.
   #Arguments: The module to which redirect the message, the message itself as a json and a callback to handle the response
@@ -43,14 +40,15 @@ class window.mem0r1es.sessionInfo
       @takePicture()
     , false
     
+    document.getElementById("validationStep").addEventListener "click", () =>
+      @setupValidation()
+    , false
+    
+    
     window.addEventListener "message", (event) =>
       clearInterval(@gmapInitMessage)
       if event.data.title is "latestCoordinates"
         @setStaticMap(event.data.content)
-      return
-    
-    document.getElementById("closeLabelOverlay").addEventListener 'click', () =>
-      $('#labelsManagerOverlay').fadeOut()
       return
       
     document.getElementById("newLabelButton").addEventListener 'click', () =>
@@ -60,20 +58,6 @@ class window.mem0r1es.sessionInfo
     document.getElementById("newLabelInput").addEventListener "keydown",(event) =>
       if event.keyCode is 13
         @addLabel()
-      return
-    
-    document.getElementById("gotoLocation").addEventListener 'click', () =>
-      @goto "location", "gotoLocation"
-      return
-    
-    document.getElementById('gotoPhotoBooth').addEventListener 'click', () =>
-      @initializeCamera()
-      @goto "photoBooth", "gotoPhotoBooth"
-      return
-      
-    document.getElementById('gotoValidation').addEventListener 'click', () =>
-      @setupValidation()
-      @goto "validation", "gotoValidation"
       return
 
     document.getElementById("closeSessionInfo").addEventListener 'click', () =>
@@ -86,6 +70,8 @@ class window.mem0r1es.sessionInfo
         window.close()
       return
       
+    $('#labelManager').on 'shown', () =>
+      @generateLabelsManager()
     return
   
   addLabel: (labelText) ->
@@ -149,7 +135,7 @@ class window.mem0r1es.sessionInfo
     @retrieveLabels ()=>
       for label in @labels
         labelSpan = document.createElement "span"
-        labelSpan.setAttribute "class", "label labelHover"
+        labelSpan.setAttribute "class", "btn btn-small bold"
         labelSpan.setAttribute "id", label.labelId
         labelSpan.appendChild document.createTextNode label.labelText
         labels.appendChild labelSpan
@@ -158,16 +144,6 @@ class window.mem0r1es.sessionInfo
             selection.classList.remove "selected"
           event.target.classList.add "selected"
         ,false
-        
-      manageLabelLink = document.createElement "p"
-      manageLabelLink.setAttribute "class", "manageLabelLink"
-      manageLabelLink.appendChild document.createTextNode "manage labels"
-      manageLabelLink.addEventListener "click", ()=>
-        @generateLabelsManager()
-        return
-      ,false
-      
-      labels.appendChild manageLabelLink
       return
     
   generateLabelsManager: () =>
@@ -176,35 +152,27 @@ class window.mem0r1es.sessionInfo
       labelsList.removeChild labelsList.lastChild
       
     for label in @labels
-      labelSpan = document.createElement "span"
-      labelSpan.setAttribute "class", "label inEdit"
-      labelSpan.setAttribute "id", label.labelId
-      labelDeleteSpan = document.createElement "span"
-      labelDeleteSpan.setAttribute "class", "labelDelete"
-      labelDeleteSpan.setAttribute "title", "delete the label"
-      labelDeleteSpan.setAttribute "id", label.labelId
-      labelDeleteSpan.appendChild document.createTextNode "X"
-      labelDeleteSpan.addEventListener "click", (event) =>
-          @removeLabel parseInt(event.target.id, 10)
-        ,false
-      labelSpan.appendChild document.createTextNode label.labelText
-      labelSpan.appendChild labelDeleteSpan
-      labelsList.appendChild labelSpan
-    $('#labelsManagerOverlay').fadeIn()
-
-  goto: (step, menu) =>
-    $(".pieceOfInfo").each () ->
-      if $(this).attr('id') isnt step
-        $(this).fadeOut()
-      else
+      labelgroup = document.createElement "div"
+      labelgroup.className = "btn-group"
+      
+      labelButton = document.createElement "button"
+      labelButton.className = "btn btn-primary btn-mini disabled"
+      labelButton.appendChild document.createTextNode label.labelText
+      
+      labelDeletebutton = document.createElement "button"
+      labelDeletebutton.className = "btn btn-mini"
+      labelDeletebutton.setAttribute "title", "delete this label"
+      labelDeletebutton.addEventListener "click", (event) =>
+        @removeLabel parseInt(event.target.id, 10)
+      ,false
+      labelDeletebuttonIcon = document.createElement "i"
+      labelDeletebuttonIcon.className = "icon-trash"
+      labelDeletebuttonIcon.setAttribute "id", label.labelId
+      labelDeletebutton.appendChild labelDeletebuttonIcon
         
-        $(this).fadeIn()
-        
-    $(".step").each () ->
-      if $(this).attr('id') isnt menu
-        $(this).removeClass "selected"
-      else
-        $(this).addClass "selected" 
+      labelgroup.appendChild labelButton
+      labelgroup.appendChild labelDeletebutton
+      labelsList.appendChild labelgroup
   
   setupValidation : () =>
     finalPicHTML = document.getElementById("finalPic")
@@ -212,11 +180,10 @@ class window.mem0r1es.sessionInfo
     @label = @getSelectedLabel()
     
     if @label?
-      document.getElementById("validationText").innerHTML="You are currently at <span class=\"label\">#{@label.labelText}</span>."
+      document.getElementById("validationText").innerHTML="You are currently at <span class=\"btn btn-small bold selected active disabled \">#{@label.labelText}</span>."
     else
-      document.getElementById("validationText").innerHTML="<span class=\"warning\">Warning: You forgot to provide a label for your location. Go back to the <button id=\"goBackLocation\">2. location step</button> to select one.</span>"
-      document.getElementById("goBackLocation").addEventListener "click", () =>
-        @goto "location", "gotoLocation"
+      document.getElementById("validationText").innerHTML="<div class=\"alert alert-block\"><h4>Warning!</h4>You forgot to provide a label for your location. Go back to step <b>Location</b> to select one.</div>"
+      
       
     message = {title: 'getExactCoordinates'}
     iframe = document.getElementById "gmap"
@@ -230,7 +197,7 @@ class window.mem0r1es.sessionInfo
     return
   
   getSelectedLabel : () ->
-    for labelHTML in document.getElementsByClassName("label")
+    for labelHTML in document.getElementById("labels").children
         if labelHTML.classList.contains("selected")
           for label in @labels
             if label.labelId is parseInt(labelHTML.id, 10)
@@ -238,7 +205,6 @@ class window.mem0r1es.sessionInfo
     return undefined
 
   saveSessionInfoAndClose : () ->
-    
     @sendMessage "userStudyToolbox", {title:"saveSession", content:{picture:@pic, location: @location, label: @label, userStudySessionId: new Date().getTime()}}, (response) =>
       window.close()
     

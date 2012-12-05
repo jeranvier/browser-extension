@@ -988,7 +988,6 @@ input[type="tel"],
 input[type="color"],
 .uneditable-input {
   display: inline-block;
-  height: 30px;
   padding: 4px 6px;
   margin-bottom: 10px;
   font-size: 14px;
@@ -5898,6 +5897,9 @@ a.badge:hover {
 .text-centered{
   text-align:center !important;
 }
+.centered{
+  margin:auto;
+}
 
 .text-right{
   text-align:right !important;
@@ -5909,4 +5911,18 @@ a.badge:hover {
 
 .bold{
   font-weight:bold;
+}
+
+.map{
+  height:600px;
+  width:800px;
+}
+
+.pic{
+  height:300px;
+  width:400px;
+}
+
+.margin10{
+  margin:10px;
 }
