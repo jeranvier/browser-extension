@@ -3,7 +3,7 @@ window.indexedDB = window.indexedDB or window.webkitIndexedDB or window.mozIndex
 window.IDBTransaction = window.IDBTransaction or window.webkitIDBTransaction or window.mozIDBTransaction or window.msIDBTransaction
 
 class window.mem0r1es.StorageExecutor  
-
+  
   setDb: (@db) ->
     console.log "Storage executor ready"
     
@@ -120,7 +120,7 @@ class window.mem0r1es.StorageExecutor
                 result._children = query.children
                 for child in query.children
                   do(child) =>
-                    @get new mem0r1es.Query().from(child.objectStore).where("_#{store.keyPath}", "equals", result[store.keyPath]), (subResults) ->
+                    @get new mem0r1es.Query().from(child.objectStore).where("_#{store.keyPath}", "equals", result[store.keyPath]), (subResults) =>
                       if subResults.length isnt 1
                         result[child.name] = subResults
                       else
@@ -139,16 +139,24 @@ class window.mem0r1es.StorageExecutor
       callback {}
     return
   
-  count : (storeName, callback) ->
-    try
-      trans = @db.transaction [storeName], "readonly"
-      store = trans.objectStore storeName
-      request = store.count()
+  count : (query, callback) ->
+    try  
+      trans = @db.transaction [query.storeName], "readonly"
+      store = trans.objectStore query.storeName
+      try
+        index = store.index query.key
+      catch error
+      if not index?
+        index = store
+      if query.keyRange
+        request = index.count query.keyRange
+      else
+        request = index.count()
       request.onsuccess = (event) ->
         callback event.target.result
     catch error
       console.log error.message
-      console.log "Error while counting #{storeName}"
+      console.log "Error while counting #{query.storeName}"
       callback {}
       
   delete : (storeName, id, callback) ->

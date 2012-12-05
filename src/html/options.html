@@ -87,10 +87,12 @@
     <div class="container">
       <h2>User study</h2>
       <h4>Extract information for the user study</h4>
-      <p>
-      <a id="extractUserStudyLink" class="btn btn-primary">Extract</a>
-      <a download="extracted_mem0r1es.json" class="hide btn btn-success" id="downloadDumpLink">download</a>
-      </p>
+
+          <a id="extractUserStudyLink" class="btn btn-primary">Extract</a>
+          <a download="extracted_mem0r1es.json" class="btn btn-success hide" id="downloadDumpLink">Download</a>  
+          <div class="progress hide progress-striped" id="dumpProgress">
+            <div class="bar" style="width: 0%;" id="dumpProgressBar"></div>
+          </div>
       <h4>Website selected for the study</h4> 
       <table id="userStudyWebsites" class="table table-striped">
         <thead>
@@ -103,9 +105,9 @@
         <tbody id="userStudyWebsitesBody">
         </tbody>
       </table>  
-      <a href="#userStudyWebsiteForm" role="button" class="btn btn-primary" data-toggle="modal" id="addUserStudyWebsitesLink">Add new website</a>
-      
-      <h2>Domain specific rules</h2>
+      <a href="#userStudyWebsiteForm" role="button" class="btn btn-primary pull-right clearfix" data-toggle="modal" id="addUserStudyWebsitesLink">Add new website</a>
+      <br>
+      <h2 class="">Domain specific rules</h2>
       <table id="rules" class="table table-striped">
         <thead>
           <tr>
@@ -119,7 +121,8 @@
         <tbody id="rulesBody">
         </tbody>
       </table>
-      <a href="#ruleForm" role="button" class="btn btn-primary" data-toggle="modal" id="addDSRuleLink">Create New Rule</a>
+      <a href="#ruleForm" role="button" class="btn btn-primary pull-right clearfix" data-toggle="modal" id="addDSRuleLink">Create New Rule</a>
+      <br>
     </div>
   </body>
 </html>

@@ -171,16 +171,30 @@ mem0r1es.options.initializeOptions = () ->
   document.getElementById('extractUserStudyLink').addEventListener 'click', () =>
     $("#extractUserStudyLink").button 'loading'
     $("#downloadDumpLink").fadeOut()
-    mem0r1es.options.sendMessage "userStudyToolbox", {title: "dumpData"}, (dump) ->
-      #xmlhttp=new XMLHttpRequest()
-      #xmlhttp.open "POST", "http://127.0.0.1:8080/", true
-      #xmlhttp.setRequestHeader "Content-type", "application/json"
-      #xmlhttp.send(JSON.stringify(dump))
-      blob = new Blob [JSON.stringify(dump)], {type: 'application/json'}
-      downloadDumpLink = document.getElementById("downloadDumpLink")
-      downloadDumpLink.href = window.webkitURL.createObjectURL blob
-      $("#downloadDumpLink").fadeIn()
-      $("#extractUserStudyLink").button 'reset'
+    mem0r1es.options.sendMessage "userStudyToolbox", {title: "countDumpData"},(totalCount) =>
+      $("#dumpProgress").fadeIn()
+      mem0r1es.updateProgressBar totalCount
+        
+      mem0r1es.options.sendMessage "userStudyToolbox", {title: "dumpData"}, (dump) =>
+        #xmlhttp=new XMLHttpRequest()
+        #xmlhttp.open "POST", "http://127.0.0.1:8080/", true
+        #xmlhttp.setRequestHeader "Content-type", "application/json"
+        #xmlhttp.send(JSON.stringify(dump))
+        blob = new Blob [JSON.stringify(dump)], {type: 'application/json'}
+        downloadDumpLink = document.getElementById("downloadDumpLink")
+        downloadDumpLink.href = window.webkitURL.createObjectURL blob
   return
-  
+
+mem0r1es.updateProgressBar = (totalCount) =>
+    mem0r1es.options.sendMessage "userStudyToolbox", {title: "countDumpedData"},(currentCount) =>
+      console.log "#{currentCount} / #{totalCount}"
+      ratio = currentCount*100/totalCount
+      $("#dumpProgressBar").width "#{ratio}%"
+      if ratio == 100
+        $("#downloadDumpLink").fadeIn()
+        $("#extractUserStudyLink").button 'reset'
+      else
+        setTimeout () ->
+          mem0r1es.updateProgressBar totalCount
+        ,1000
 document.addEventListener 'DOMContentLoaded', mem0r1es.options.initializeOptions

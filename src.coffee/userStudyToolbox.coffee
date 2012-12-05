@@ -3,8 +3,9 @@ window.mem0r1es = {} if not window.mem0r1es?
 class window.mem0r1es.UserStudyToolbox
 
   constructor : (@storageManager)->
-    console.log "Toolbox for the user study is ready"
+    @currentCount = 0
     @checkIfNeedNewContext()
+    console.log "Toolbox for the user study is ready"
   
   onMessage : (message, sender, sendResponse) ->
     switch(message.title)
@@ -16,6 +17,8 @@ class window.mem0r1es.UserStudyToolbox
         when "getUserStudyWebsites" then @getUserStudyWebsites sendResponse
         when "storeUserStudyWebsite" then @storeUserStudyWebsite message.content, sendResponse
         when "deleteUserStudyWebsite" then @deleteUserStudyWebsite message.content, sendResponse 
+        when "countDumpData" then @countDumpData sendResponse 
+        when "countDumpedData" then @countDumpedData sendResponse 
         when "dumpData" then @dumpData sendResponse         
     return
     
@@ -78,7 +81,29 @@ class window.mem0r1es.UserStudyToolbox
     @getUserStudyWebsites (websites) =>
       websites[website.websiteId] = website
       @storageManager.store "parameters", {parameterId:"userStudyWebsites", value:websites}, sendResponse
-      
+  
+  countDumpedData : (sendResponse) ->
+    sendResponse @currentCount
+    
+  countDumpData : (sendResponse) ->
+    @currentCount = 0
+    @getUserStudyWebsites (websites) =>
+      count = Object.keys(websites).length
+      if count is 0
+        sendResponse 1
+        return
+      total = 0
+      for websiteId, website of websites
+        @currentCount++
+        do (website) =>
+          query = new mem0r1es.Query().from("temporary").where("URL", "between", "#{website.pattern}", false , "#{website.pattern.slice 0,-1}#{String.fromCharCode(website.pattern.charCodeAt(website.pattern.length-1)+1) }", true)
+          @storageManager.count query, (results) =>
+            total += results
+            if count is 1
+              sendResponse total
+            else
+              count--
+          
   dumpData : (sendResponse) ->
     console.log "dumping data for user study"
     dump = {}
@@ -88,6 +113,10 @@ class window.mem0r1es.UserStudyToolbox
     
     @getUserStudyWebsites (websites) =>
       count = Object.keys(websites).length
+      if count is 0
+        @currentCount = 1
+        sendResponse dump
+        return
       for websiteId, website of websites
         do (website) =>
           query = new mem0r1es.Query().from("temporary").where("URL", "between", "#{website.pattern}", false , "#{website.pattern.slice 0,-1}#{String.fromCharCode(website.pattern.charCodeAt(website.pattern.length-1)+1) }", true).getChildren [{name:"userAction", objectStore:"userActions"},{name:"screenshot", objectStore:"screenshots"}]
@@ -107,5 +136,4 @@ class window.mem0r1es.UserStudyToolbox
                       count--
                   else
                     subcount--
-              
-    
+                    @currentCount++
