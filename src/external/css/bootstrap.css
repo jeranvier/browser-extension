@@ -5892,10 +5892,21 @@ a.badge:hover {
   position: fixed;
 }
 
+/*
+ Customed style
+ */
 .text-centered{
   text-align:center !important;
 }
 
 .text-right{
   text-align:right !important;
+}
+
+.btn-fixedSize{
+  width:200px;
+}
+
+.bold{
+  font-weight:bold;
 }
