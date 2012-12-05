@@ -206,6 +206,7 @@ class window.mem0r1es.sessionInfo
 
   saveSessionInfoAndClose : () ->
     @sendMessage "userStudyToolbox", {title:"saveSession", content:{picture:@pic, location: @location, label: @label, userStudySessionId: new Date().getTime()}}, (response) =>
+      @localMediaStream.stop()
       window.close()
     
 sessionInfo = new mem0r1es.sessionInfo()
