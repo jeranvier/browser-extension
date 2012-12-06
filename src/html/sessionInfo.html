@@ -38,15 +38,15 @@
     
     <div class="container">
       <h1>Session information</h1>
-      <p class="bold">You have reached this page because we think the context in which you are browsing may have changed. Please follow the two steps <a href="#photoBooth" data-toggle="tab">Picture</a> and <a href="#location" data-toggle="tab">Location</a> before validating the form.<p>
+      <p class="bold">You have reached this page because we think the context in which you are browsing may have changed. Please follow the two steps Picture and Location before validating the form.<p>
       <p class="bold">You can also choose to not record this session and go to incognito mode. <a id="closeAndIncognito" class="btn btn-mini btn-danger">Do not record this session</a><p>
       <br>
       <div class="tabbable tabs-left">
       
         <ul class="nav nav-tabs">
-          <li class="active"><a href="#photoBooth" data-toggle="tab">Picture</a></li>
-          <li class=""><a href="#location" data-toggle="tab">Location</a></li>
-          <li class=""><a href="#validation" data-toggle="tab" id="validationStep">Validation</a></li>
+          <li class="active bold" id="photoBoothList"><a href="#photoBooth" data-toggle="tab" id="photoBoothLink"><i class="icon-camera" id="photoBoothIcon"></i> Picture</a></li>
+          <li class="disabled bold" id="locationList"><a href="#location" data-toggle="" id="locationLink"><i class="icon-screenshot disabled" id="locationIcon"></i> Location</a></li>
+          <li class="disabled bold" id="validationList"><a href="#validation" data-toggle="" id="validationLink"><i class="icon-ok disabled" id="validationIcon"></i> Validation</a></li>
         </ul>
         
         <div class="tab-content">

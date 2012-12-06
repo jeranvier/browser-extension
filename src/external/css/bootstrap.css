@@ -5921,8 +5921,13 @@ a.badge:hover {
 .pic{
   height:300px;
   width:400px;
+  background-color:#DDDDDD;
 }
 
 .margin10{
   margin:10px;
+}
+
+i.disabled{
+  opacity : 0.4;
 }

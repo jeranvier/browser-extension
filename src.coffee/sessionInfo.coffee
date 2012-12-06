@@ -40,7 +40,7 @@ class window.mem0r1es.sessionInfo
       @takePicture()
     , false
     
-    document.getElementById("validationStep").addEventListener "click", () =>
+    document.getElementById("validationLink").addEventListener "click", () =>
       @setupValidation()
     , false
     
@@ -101,6 +101,9 @@ class window.mem0r1es.sessionInfo
       ctx=pic.getContext "2d"
       ctx.drawImage camera, 0, 0
       @pic = pic.toDataURL "image/jpeg"
+      $("#locationList").removeClass "disabled"
+      $("#locationLink").attr "data-toggle", "tab"
+      $("#locationIcon").removeClass "disabled"
       
   getCoordinate : () =>
     if not navigator.geolocation?
@@ -143,6 +146,9 @@ class window.mem0r1es.sessionInfo
           for selection in document.getElementsByClassName "label"
             selection.classList.remove "selected"
           event.target.classList.add "selected"
+          $("#validationList").removeClass "disabled"
+          $("#validationLink").attr "data-toggle", "tab"
+          $("#validationIcon").removeClass "disabled"
         ,false
       return
     
