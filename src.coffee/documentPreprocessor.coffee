@@ -2,7 +2,7 @@ window.mem0r1es = {} if not window.mem0r1es?
 
 class window.mem0r1es.DocumentPreprocessor
 
-  constructor : (@message, @sender, @sendResponse, @storageManager, @activeTab) ->
+  constructor : (@message, @sender, sendResponse, @storageManager, @activeTab) ->
     @dontStore = false
     @pageId = @message.content.pageId
     @document = {}
@@ -10,6 +10,7 @@ class window.mem0r1es.DocumentPreprocessor
     @numberOfFetchedFeatures = 7
     console.log "new Document processor created to handle the mem0r1e from #{sender.tab.url} (#{@pageId})"
     @preprocessMem0r1e()
+    sendResponse {title:"documentPreprocessorCreated", pageId:@pageId}
   
   preprocessMem0r1e : () ->
     @getLanguage @sender.tab
@@ -39,7 +40,7 @@ class window.mem0r1es.DocumentPreprocessor
       @storetemporaryDocument()
     return
   
-  storetemporaryDocument : (sendResponse = @sendResponse) ->
+  storetemporaryDocument : (sendResponse = ()->return) ->
     if not @dontStore
       @storageManager.store "temporary", @document, sendResponse
     return
@@ -78,3 +79,11 @@ class window.mem0r1es.DocumentPreprocessor
       userAction._pageId = @pageId
       userAction.userActionId = "#{userAction.type}_#{new Date().getTime()}_#{Math.floor(Math.random()*100)}"
       @storageManager.store "userActions", userAction, sendResponse
+      
+  updateContent : (message) ->
+    console.log "update content of #{@pageId}"
+    return
+    
+  setTabActivated : (isActive) ->
+    @isActive = isActive
+    return

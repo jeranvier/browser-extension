@@ -3,9 +3,22 @@ window.mem0r1es = {} if not window.mem0r1es?
 class window.mem0r1es.DocumentPreprocessorPool
   
   constructor : (@storageManager) ->
-    @documentPreprocessors = new Array()
+    @documentPreprocessors = {}
     chrome.tabs.onActivated.addListener (activeInfo) =>
-      @activeTab = {id:activeInfo.tabId, windowId : activeInfo.windowId}
+      if @activeTab
+        try
+          @documentPreprocessors[@activeTab.id].setTabActivated false
+        catch error
+        @activeTab = {id:activeInfo.tabId, windowId : activeInfo.windowId}
+        try
+          @documentPreprocessors[@activeTab.id].setTabActivated true
+        catch error
+      else
+        @activeTab = {id:activeInfo.tabId, windowId : activeInfo.windowId}
+    chrome.tabs.onRemoved.addListener (tabId, removeInfo) =>
+      console.log "deleting the documentPreprocessor for tabId : #{tabId}"
+      delete @documentPreprocessors[tabId]
+      console.log @documentPreprocessors
     console.log "document preprocessor pool ready"
     
   #Handles messages received from background.js
@@ -19,21 +32,22 @@ class window.mem0r1es.DocumentPreprocessorPool
     return
     
   createDocumentPreprocessor : (message, sender, sendResponse) =>
-    @documentPreprocessors.push(new mem0r1es.DocumentPreprocessor message, sender, sendResponse, @storageManager, @activeTab)
+    tabId =sender.tab.id
+    URL = sender.tab.url
+    if not @documentPreprocessors[tabId]? or @documentPreprocessors[tabId].document.URL.valueOf() isnt URL.valueOf()
+      @documentPreprocessors[tabId] = new mem0r1es.DocumentPreprocessor message, sender, sendResponse, @storageManager, @activeTab
+    else
+      @documentPreprocessors[tabId].updateContent message
+      sendResponse {title:"documentPreprocessorCreated", pageId:@documentPreprocessors[tabId].pageId}
+    console.log @documentPreprocessors
     return
     
   updateMem0r1e : (message, sender, sendResponse) =>
-    #TODO handle the case when the unload event is not triggered
+    tabId =sender.tab.id
+    URL = sender.tab.url
+    
     if message.content.event? and message.content.event.type is "unload" #if the event is unload then we have to delete the documentPreprocessor once it performed its business
       sendResponse = () =>
         @deleteDocumentPreprocessor message.content.pageId
-    for documentPreprocessor in @documentPreprocessors
-      if documentPreprocessor.pageId is message.content.pageId
-        documentPreprocessor.update message, sendResponse
-        return
-    return
-  
-  deleteDocumentPreprocessor : (pageId) ->
-    console.log "deleting the documentPreprocessor for pageId : #{pageId}"
-    @documentPreprocessors = @documentPreprocessors.filter (documentPreprocessor) -> documentPreprocessor.pageId isnt pageId
+    @documentPreprocessors[tabId].update message, sendResponse
     return

@@ -32,11 +32,13 @@ mem0r1es.injectable.sendMessage = (module, message, callback)->
   
 mem0r1es.injectable.getPageId = () ->
   if not window.mem0r1es.pageId?
-    window.mem0r1es.pageId = "#{document.location.href.split("/")[2].split(".").reverse().join(".")}_#{new Date().getTime()}_#{Math.floor(Math.random()*1000)}"
+    window.mem0r1es.pageId = "#{document.location.href.split("/")[2]}_#{new Date().getTime()}_#{Math.floor(Math.random()*1000)}"
   return mem0r1es.pageId
 
 mem0r1es.injectable.getInitialTimeStamp = () ->
-  return parseInt mem0r1es.injectable.getPageId().split("_")[1], 10
+  if not window.mem0r1es.initialTimeStamp?
+    window.mem0r1es.initialTimeStamp = new Date().getTime()
+  return mem0r1es.initialTimeStamp
   
 mem0r1es.injectable.clickListener = (event) ->
   mem0r1es.injectable.sendMessage "documentPreprocessor", {
@@ -83,13 +85,17 @@ mem0r1es.injectable.unloadListener = (event) ->
   return
 
 mem0r1es.injectable.createNewMem0r1e = () ->  
+  console.log mem0r1es.injectable.getPageId()
   mem0r1es.injectable.sendMessage "documentPreprocessor", {
     title : "newMem0r1e"
     content :
       pageId : mem0r1es.injectable.getPageId()
       timestamp: mem0r1es.injectable.getInitialTimeStamp()
       DOMtoJSON : mem0r1es.injectable.DOMtoJSON document.getElementsByTagName("html")[0]
-    }, null
+    }, (response) =>
+      window.mem0r1es.pageId = response.pageId
+      console.log mem0r1es.injectable.getPageId()
+      
  
 mem0r1es.injectable.loadDSRules = () ->
   mem0r1es.injectable.sendMessage "DSLProcessor", {title : "getRulesForURL"}, mem0r1es.injectable.DSRulesHandler
