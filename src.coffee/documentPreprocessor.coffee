@@ -15,6 +15,11 @@ class window.mem0r1es.DocumentPreprocessor
     @screenshotTaken = false
   
   preprocessMem0r1e : () ->
+    if @tab.active
+      @isActive = true
+      @takeScreenshot()
+    else
+      @isActive = false
     @getLanguage @tab
     @set "URL", @tab.url
     @set "reverseDomainName", @tab.url.split("/")[2].split(".").reverse().join(".")

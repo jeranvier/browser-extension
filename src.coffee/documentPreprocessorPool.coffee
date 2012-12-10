@@ -18,7 +18,6 @@ class window.mem0r1es.DocumentPreprocessorPool
     chrome.tabs.onRemoved.addListener (tabId, removeInfo) =>
       console.log "deleting the documentPreprocessor for tabId : #{tabId}"
       delete @documentPreprocessors[tabId]
-      console.log @documentPreprocessors
     console.log "document preprocessor pool ready"
     
   #Handles messages received from background.js
@@ -39,15 +38,10 @@ class window.mem0r1es.DocumentPreprocessorPool
     else
       @documentPreprocessors[tabId].updateContent message
       sendResponse {title:"documentPreprocessorCreated", pageId:@documentPreprocessors[tabId].pageId}
-    console.log @documentPreprocessors
     return
     
   updateMem0r1e : (message, sender, sendResponse) =>
     tabId =sender.tab.id
     URL = sender.tab.url
-    
-    if message.content.event? and message.content.event.type is "unload" #if the event is unload then we have to delete the documentPreprocessor once it performed its business
-      sendResponse = () =>
-        @deleteDocumentPreprocessor message.content.pageId
     @documentPreprocessors[tabId].update message, sendResponse
     return
