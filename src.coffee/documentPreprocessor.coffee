@@ -2,21 +2,22 @@ window.mem0r1es = {} if not window.mem0r1es?
 
 class window.mem0r1es.DocumentPreprocessor
 
-  constructor : (@message, @sender, sendResponse, @storageManager, @activeTab) ->
+  constructor : (@message, sender, sendResponse, @storageManager, @activeTab) ->
     @dontStore = false
     @pageId = @message.content.pageId
+    @tab = sender.tab
     @document = {}
     @currentNumberOfFetchedFeatures = 0
     @numberOfFetchedFeatures = 7
-    console.log "new Document processor created to handle the mem0r1e from #{sender.tab.url} (#{@pageId})"
+    console.log "new Document processor created to handle the mem0r1e from #{@tab.url} (#{@pageId})"
     @preprocessMem0r1e()
     sendResponse {title:"documentPreprocessorCreated", pageId:@pageId}
+    @screenshotTaken = false
   
   preprocessMem0r1e : () ->
-    @getLanguage @sender.tab
-    @takeScreenshot @sender.tab
-    @set "URL", @sender.tab.url
-    @set "reverseDomainName", @sender.tab.url.split("/")[2].split(".").reverse().join(".")
+    @getLanguage @tab
+    @set "URL", @tab.url
+    @set "reverseDomainName", @tab.url.split("/")[2].split(".").reverse().join(".")
     @set "timestamp", @message.content.timestamp
     @set "pageId", @message.content.pageId
     @set "DOM", @message.content.DOMtoJSON
@@ -48,15 +49,12 @@ class window.mem0r1es.DocumentPreprocessor
   isReadyToStore : () ->
     return @currentNumberOfFetchedFeatures is @numberOfFetchedFeatures
     
-  takeScreenshot : (tab) =>
-    if not @dontStore
-      chrome.windows.update tab.windowId, {focused :true}, () =>
-        chrome.tabs.update tab.id, {active:true}, () =>
-          chrome.tabs.captureVisibleTab tab.windowID, {quality : 10, format : "jpeg"}, (dataUrl) =>
-            @storageManager.store "screenshots", {screenshotId:@pageId, _pageId:@pageId, screenshot:dataUrl}
-            chrome.windows.update @activeTab.windowId, {focused :true}, () =>
-              chrome.tabs.update @activeTab.id, {active:true}                    
-        return
+  takeScreenshot : () =>
+    chrome.tabs.captureVisibleTab @tab.windowID, {quality : 10, format : "jpeg"}, (dataUrl) =>
+      @storageManager.store "screenshots", {screenshotId:@pageId, _pageId:@pageId, screenshot:dataUrl}
+      console.log "screenshot taken for #{@tab.url}"
+      @screenshotTaken = true
+      return
     return
     
   update : (message, sendResponse) -> #TODO Handle the sendResponse
@@ -86,4 +84,6 @@ class window.mem0r1es.DocumentPreprocessor
     
   setTabActivated : (isActive) ->
     @isActive = isActive
+    if not @screenshotTaken and isActive
+      @takeScreenshot()
     return
