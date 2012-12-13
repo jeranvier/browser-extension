@@ -51,27 +51,31 @@ class window.mem0r1es.StorageExecutor
   store : (storeName, value, callback)->
     try
       if value._children?
-        count = value._children.length
+        count = 0
+        for child in value._children
+          count = count + value[child.name].length
         for child in value._children
           do(child) =>
-            @store child.objectStore value[child.name], () ->
-              delete value[child.name]
-              if count == 1
-                delete value._children
-                trans = @db.transaction [storeName], "readwrite"
-                store = trans.objectStore storeName
-                request = store.put value
-                request.onsuccess = (event) ->
-                  if callback?
-                    try
-                      callback event.target.result
-                    catch error
-                  return
-                
-                request.onerror = @onerror
-              else
-                count--
-              return
+            for childElement in value[child.name]
+              @store child.objectStore, childElement, () =>
+                if count == 1
+                  for child in value._children
+                    delete value[child.name]
+                  delete value._children
+                  trans = @db.transaction [storeName], "readwrite"
+                  store = trans.objectStore storeName
+                  request = store.put value
+                  request.onsuccess = (event) ->
+                    if callback?
+                      try
+                        callback event.target.result
+                      catch error
+                    return
+                  
+                  request.onerror = @onerror
+                else
+                  count--
+                return
             return
       else
         trans = @db.transaction [storeName], "readwrite"
@@ -89,7 +93,8 @@ class window.mem0r1es.StorageExecutor
     catch error
       console.log error.message
       console.log "Error while storing #{JSON.stringify(value)} in store #{storeName}"
-      callback {}
+      if callback?
+        callback {}
     return
     
   get : (query, callback) ->
@@ -121,10 +126,7 @@ class window.mem0r1es.StorageExecutor
                 for child in query.children
                   do(child) =>
                     @get new mem0r1es.Query().from(child.objectStore).where("_#{store.keyPath}", "equals", result[store.keyPath]), (subResults) =>
-                      if subResults.length isnt 1
                         result[child.name] = subResults
-                      else
-                        result[child.name] = subResults[0]
                       if count is 1
                         callback results
                       else
