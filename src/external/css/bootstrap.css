@@ -5931,3 +5931,7 @@ a.badge:hover {
 i.disabled{
   opacity : 0.4;
 }
+
+.dropBox{
+  border:8px dashed #D4D4FF;
+}

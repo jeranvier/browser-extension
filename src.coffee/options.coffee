@@ -168,6 +168,9 @@ mem0r1es.options.initializeUserStudyWebsite = () ->
 mem0r1es.options.initializeOptions = () ->
   mem0r1es.options.initializeRules()
   mem0r1es.options.initializeUserStudyWebsite()
+  document.getElementById('dropBox').addEventListener "drop", mem0r1es.onDropMemories
+  
+  
   document.getElementById('extractUserStudyLink').addEventListener 'click', () =>
     $("#extractUserStudyLink").button 'loading'
     $("#downloadDumpLink").fadeOut()
@@ -197,4 +200,20 @@ mem0r1es.updateProgressBar = (totalCount) =>
         setTimeout () ->
           mem0r1es.updateProgressBar totalCount
         ,1000
+
+mem0r1es.onDropMemories = (event) ->
+  files = event.dataTransfer.files
+  count = files.length;
+  for file in files
+    mem0r1es.handleMem0r1esFile file
+  event.preventDefault()
+
+mem0r1es.handleMem0r1esFile = (file) =>
+  reader = new FileReader()
+  reader.onload = (fileLoadedEvent) =>
+    $('#dropBoxText').text "Mem0r1es Loading..."
+    mem0r1es.options.sendMessage "userStudyToolbox", {title: "storeMem0r1esFile", content:fileLoadedEvent.target.result}, (response) =>
+      $('#dropBoxText').text response
+    
+  reader.readAsText file
 document.addEventListener 'DOMContentLoaded', mem0r1es.options.initializeOptions

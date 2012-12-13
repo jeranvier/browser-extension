@@ -19,7 +19,8 @@ class window.mem0r1es.UserStudyToolbox
         when "deleteUserStudyWebsite" then @deleteUserStudyWebsite message.content, sendResponse 
         when "countDumpData" then @countDumpData sendResponse 
         when "countDumpedData" then @countDumpedData sendResponse 
-        when "dumpData" then @dumpData sendResponse         
+        when "dumpData" then @dumpData sendResponse  
+        when "storeMem0r1esFile" then @storeMem0r1esFile message.content, sendResponse 
     return
     
   addLabel : (messageContent, sendResponse) =>
@@ -137,3 +138,27 @@ class window.mem0r1es.UserStudyToolbox
                   else
                     subcount--
                     @currentCount++
+                    
+  storeMem0r1esFile : (messageContent, sendResponse) ->
+    @storageManager.clearStore "temporary"
+    @storageManager.clearStore "userStudySessions"
+    @storageManager.clearStore "userActions"
+    @storageManager.clearStore "screenshots"
+    try
+      mem0ries = JSON.parse messageContent     
+    catch error
+      response = "Invalid json"
+      sendResponse response
+    
+    count = 0
+    for key, websites of mem0ries
+      count = count + websites.length
+    for key, websites of mem0ries
+      for website in websites
+        @storageManager.store "userStudySessions", website.userStudySession
+        delete website.userStudySession
+        @storageManager.store "temporary", website, () =>
+          if count is 1
+            sendResponse "Mem0r1es Loaded"
+          else
+            count--
