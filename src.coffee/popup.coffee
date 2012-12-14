@@ -25,6 +25,10 @@ class window.mem0r1es.Popup
       chrome.tabs.create 'url': chrome.extension.getURL('html/options.html')
     , false
     
+    document.getElementById("inspectorButton").addEventListener "click", ()=>
+      chrome.tabs.create 'url': chrome.extension.getURL('html/inspector.html')
+    , false
+    
     document.getElementById("cameraButton").addEventListener "click", ()=>
       chrome.tabs.create {'url': chrome.extension.getURL('html/sessionInfo.html'), pinned:true}
     , false
