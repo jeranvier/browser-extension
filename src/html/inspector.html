@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" ng-app ng-csp>
+  <head>
+    <title>Mem0r1es inspector</title>
+    <link href="../external/css/bootstrap.css" rel="stylesheet" media="screen">
+    <script src = "../js/inspector.js" ></script>
+    <script src="../external/js/jquery-1.8.3.js"></script>
+    <script src="../external/js/bootstrap.js"></script>
+    <script src="../external/js/angular.js"></script>
+  </head>
+
+  <body>
+    <div class="container-fluid">
+      <div class="row-fluid">
+    
+        <div class="span2">
+        </div>
+        
+        <div class="span8">
+          <div class="page-header">
+            <h1>Database Inspector</h1>
+          </div>
+          <div class="well" ng-repeat="result in results">
+            <div class="row-fluid">
+              <div class="span8">
+                <h4>{{ result.title }}</h4>
+              </div>
+              <div class="span4 timestamp">
+                <h4>{{ result.timestamp }}</h4>
+              </div>
+            </div>
+            <hr>
+
+            <p>
+              <strong>URL:</strong> <a href="{{ result.URL }}">{{ URL }}</a>
+              <strong>Size:</strong> {{ result.size }}
+            </p>
+            
+            <div class="row-fluid">
+              <div class="span6">
+                <img src="{{ result.screenshot }}"/> 
+              </div>
+              <div class="span6">
+                <!-- TO COMPLETE WITH SESSION INFORMATION -->
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="span2">
+        </div>
+
+      </div>
+    </div>
+
+  </body>
+</html>
+

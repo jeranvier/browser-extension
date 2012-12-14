@@ -5935,3 +5935,11 @@ i.disabled{
 .dropBox{
   border:8px dashed #D4D4FF;
 }
+
+.timestamp {
+  font-weight: bold;
+  color: #999999;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  text-align: right;
+}
+
