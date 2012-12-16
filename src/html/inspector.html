@@ -1,15 +1,18 @@
 <!DOCTYPE html>
-<html lang="en" ng-app ng-csp>
+<html lang="en" data-ng-app="mem0r1esInspector" data-ng-csp>
   <head>
     <title>Mem0r1es inspector</title>
     <link href="../external/css/bootstrap.css" rel="stylesheet" media="screen">
-    <script src = "../js/inspector.js" ></script>
     <script src="../external/js/jquery-1.8.3.js"></script>
     <script src="../external/js/bootstrap.js"></script>
     <script src="../external/js/angular.js"></script>
+    <script src = "../js/query.js" ></script>
+    <script src = "../js/storageManager.js" ></script>
+    <script src = "../js/storageExecutor.js" ></script>
+    <script src = "../js/inspector.js" ></script>
   </head>
 
-  <body>
+  <body data-ng-controller="controller">
     <div class="container-fluid">
       <div class="row-fluid">
     
@@ -26,22 +29,27 @@
                 <h4>{{ result.title }}</h4>
               </div>
               <div class="span4 timestamp">
-                <h4>{{ result.timestamp }}</h4>
+                <h4>{{ result.date }}</h4>
               </div>
             </div>
             <hr>
 
             <p>
-              <strong>URL:</strong> <a href="{{ result.URL }}">{{ URL }}</a>
-              <strong>Size:</strong> {{ result.size }}
+              <strong>URL:</strong> <a href="{{ result.URL }}">{{ result.URL }}</a>
+              <strong>Language:</strong> {{ result.language }}
             </p>
             
             <div class="row-fluid">
-              <div class="span6">
-                <img src="{{ result.screenshot }}"/> 
+              <div class="span8 alert-info padding10">
+                <p class="bold underline">Screenshot</p>
+                <img src="{{ result.screenshot }}" alt="{{ result.URL }}">
               </div>
-              <div class="span6">
-                <!-- TO COMPLETE WITH SESSION INFORMATION -->
+              <div class="span4 alert-info padding10">
+                <p class="bold underline">Session information</p>
+                <p>This session happened at <strong>{{ result.userStudySession.label.labelText }}</strong></p>
+                <img src="{{ result.sessionPicture }}" alt="sessionPicture">
+                &nbsp;
+                <img src="{{ result.sessionLocation }}" alt="sessionLocation">
               </div>
             </div>
 

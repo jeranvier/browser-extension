@@ -5928,6 +5928,14 @@ a.badge:hover {
   margin:10px;
 }
 
+.padding10{
+  padding:10px;
+}
+
+.underline{
+  text-decoration:underline;
+}
+
 i.disabled{
   opacity : 0.4;
 }

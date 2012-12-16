@@ -20,7 +20,8 @@ class window.mem0r1es.UserStudyToolbox
         when "countDumpData" then @countDumpData sendResponse 
         when "countDumpedData" then @countDumpedData sendResponse 
         when "dumpData" then @dumpData sendResponse  
-        when "storeMem0r1esFile" then @storeMem0r1esFile message.content, sendResponse 
+        when "storeMem0r1esFile" then @storeMem0r1esFile message.content, sendResponse
+        when "getMem0r1es" then @getMem0r1es message.content, sendResponse
     return
     
   addLabel : (messageContent, sendResponse) =>
@@ -162,3 +163,17 @@ class window.mem0r1es.UserStudyToolbox
             sendResponse "Mem0r1es Loaded"
           else
             count--
+  
+  getMem0r1es : (messageContent, sendResponse) ->
+    query = new mem0r1es.Query().from("temporary").getChildren [{name:"screenshot", objectStore:"screenshots"}]
+    @storageManager.get query, (results) =>
+      count = results.length
+      for result in results
+        do(result) =>
+          query = new mem0r1es.Query().from("userStudySessions").where("userStudySessionId", "equals", parseInt(result._userStudySessionId, 10))
+          @storageManager.get query, (subResults) =>
+            result.userStudySession = subResults[0]
+            if count is 1
+              sendResponse results
+            else
+              count--

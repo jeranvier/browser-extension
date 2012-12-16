@@ -126,7 +126,7 @@ class window.mem0r1es.StorageExecutor
                 for child in query.children
                   do(child) =>
                     @get new mem0r1es.Query().from(child.objectStore).where("_#{store.keyPath}", "equals", result[store.keyPath]), (subResults) =>
-                        result[child.name] = subResults
+                      result[child.name] = subResults
                       if count is 1
                         callback results
                       else
