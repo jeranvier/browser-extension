@@ -20,7 +20,7 @@ class window.mem0r1es.inspector
       @sendMessage "userStudyToolbox", {title:"getMem0r1es", content:""}, (results)=>
         for result in results
           console.log result
-          if result.screenshot?
+          if result.screenshot isnt 'undefined' and result.screenshot.length is 1 and result.screenshot[0].screenshot isnt 'undefined'
             result.screenshot = result.screenshot[0].screenshot
           else
             result.screenshot = ""

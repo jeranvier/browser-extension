@@ -54,7 +54,8 @@ class window.mem0r1es.UserStudyToolbox
   getLastActivityTime : () ->
     lastActivityTime = localStorage.getItem 'lastActivityTime'
     if lastActivityTime is null
-      return @updateLastActivityTime()
+      localStorage.setItem 'lastActivityTime', 0
+      return 0
     return lastActivityTime
     
   checkIfNeedNewContext : () ->
