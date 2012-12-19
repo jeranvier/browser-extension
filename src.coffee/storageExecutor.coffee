@@ -98,6 +98,7 @@ class window.mem0r1es.StorageExecutor
     return
     
   get : (query, callback) ->
+    n=0
     try
       results = new Array
       trans = @db.transaction [query.storeName], "readonly"
@@ -113,9 +114,13 @@ class window.mem0r1es.StorageExecutor
         request = index.openCursor()
       request.onsuccess = (event) =>
         cursor = event.target.result
-        if cursor?
-          if query.accept cursor.value
-            results.push cursor.value
+        if cursor? and n<query.limitMax
+          n++
+          if query.limitMin-1<n
+            if query.accept cursor.value
+              results.push cursor.value
+            else
+              n--
           cursor.continue()
         else
           if query.children? and query.children.length isnt 0

@@ -4,6 +4,8 @@ window.IDBKeyRange =window.IDBKeyRange or window.webkitIDBKeyRange or window.moz
 class window.mem0r1es.Query
   constructor : () ->
     @andConditions = new Array
+    @limitMin = 0
+    @limitMax = Infinity
   
   from : (@storeName) ->
     return @
@@ -42,6 +44,15 @@ class window.mem0r1es.Query
   #children is a Js array such as [{name:"userAction", objectStore:"userActions"}]
   getChildren : (children)->
     @children = children
+    return @
+  
+  #Limit the number of results returned by the DB
+  limit : (val1, val2)->
+    if arguments.length is 1
+      @limitMax = val1
+    else
+      @limitMin = val1
+      @limitMax = val2
     return @
     
   accept : (candidate) ->
