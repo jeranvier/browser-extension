@@ -22,6 +22,7 @@ class window.mem0r1es.UserStudyToolbox
         when "dumpData" then @dumpData sendResponse  
         when "storeMem0r1esFile" then @storeMem0r1esFile message.content, sendResponse
         when "getMem0r1es" then @getMem0r1es message.content, sendResponse
+        when "countMem0r1es" then @countMem0r1es sendResponse
     return
     
   addLabel : (messageContent, sendResponse) =>
@@ -165,8 +166,13 @@ class window.mem0r1es.UserStudyToolbox
           else
             count--
   
+  countMem0r1es : (sendResponse) =>
+    query = new mem0r1es.Query().from("temporary")
+    @storageManager.count query, (results) =>
+      sendResponse results
+  
   getMem0r1es : (messageContent, sendResponse) ->
-    query = new mem0r1es.Query().from("temporary").getChildren [{name:"screenshot", objectStore:"screenshots"}]
+    query = new mem0r1es.Query().from("temporary").where("timestamp","greaterThan",0).getChildren([{name:"screenshot", objectStore:"screenshots"}]).limit messageContent.limitMin, messageContent.limitMax
     @storageManager.get query, (results) =>
       count = results.length
       for result in results

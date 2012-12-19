@@ -39,6 +39,7 @@ class window.mem0r1es.StorageManager
           if not @db.objectStoreNames.contains "temporary"
             temporary = @db.createObjectStore "temporary", { keyPath: "pageId" }
             temporary.createIndex("URL", "URL")
+            temporary.createIndex("timestamp", "timestamp")
             #temporary.createIndex("j", "j", { unique: false, multiEntry: true })
             
           if not @db.objectStoreNames.contains "parameters"
