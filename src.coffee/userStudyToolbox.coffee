@@ -88,19 +88,27 @@ class window.mem0r1es.UserStudyToolbox
     query = new mem0r1es.Query().from("temporary").where("timestamp", "between", lastDump, true , @now, false).getChildren [{name:"userAction", objectStore:"userActions"},{name:"screenshot", objectStore:"screenshots"}]
     @storageManager.get query, (results) =>
       console.log "dumping #{results.length} pages"
-      page = results.shift()
+      if results.length > 0
+        page = results.shift()
+      else
+        page = null
       @tidyDumpUp page, results, {}, @sendToServer
     return
   
   tidyDumpUp : (page, results, dump, callback) =>
-    if results.length is 0
+
+    if page is null
       callback dump
       return
       
     if dump[page._userStudySessionId]?
       dump[page._userStudySessionId].pages.push page
-      page = results.shift()
-      @currentCount++
+      if results.length > 0
+        page = results.shift()
+        @currentCount++
+      else
+        page = null
+      
       @tidyDumpUp page, results, dump, callback
     else
       query = new mem0r1es.Query().from("userStudySessions").where("userStudySessionId", "equals", parseInt(page._userStudySessionId, 10))
@@ -109,8 +117,12 @@ class window.mem0r1es.UserStudyToolbox
         dump[page._userStudySessionId].userStudySession = subResults[0]
         dump[page._userStudySessionId].pages = []
         dump[page._userStudySessionId].pages.push page
-        page = results.shift()
-        @currentCount++
+        if results.length > 0
+          page = results.shift()
+          @currentCount++
+        else
+          page = null
+        
         @tidyDumpUp page, results, dump, callback
   
   sendToServer : (dump) =>
@@ -151,9 +163,11 @@ class window.mem0r1es.UserStudyToolbox
     count=0
     
     for key, session of mem0ries
-      @storageManager.store "userStudySessions", session.userStudySession
       for page in session.pages
         count++
+    for key, session of mem0ries
+      @storageManager.store "userStudySessions", session.userStudySession
+      for page in session.pages
         @storageManager.store "temporary", page, () =>
           count--
           if count is 0
