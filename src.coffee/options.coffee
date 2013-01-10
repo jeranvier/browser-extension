@@ -108,66 +108,8 @@ mem0r1es.options.initializeRules = () ->
   document.getElementById('saveRule').addEventListener 'click', mem0r1es.options.saveRule
   mem0r1es.options.displayRules()
 
-mem0r1es.options.displayUserStudyWebsites = () ->
-  mem0r1es.options.sendMessage "userStudyToolbox", {title: "getUserStudyWebsites"}, (websites) ->
-    while userStudyWebsitesBody.hasChildNodes()
-      userStudyWebsitesBody.removeChild(userStudyWebsitesBody.lastChild);
-    
-    count = 0
-    for websiteId, website of websites
-      count++
-      websiteNode = document.createElement "tr"
-      title = document.createElement "td"
-      pattern = document.createElement "td"
-      actions = document.createElement "td"
-      deleteWebsiteLink = document.createElement "a"
-      deleteWebsiteLink.className = "btn"
-      deleteWebsiteLink.id = "delete_website#{website.websiteId}"
-      deleteWebsiteLink.addEventListener 'click', () ->
-        mem0r1es.options.deleteWebsite parseInt(@id.substring(14),10)
-      deleteWebsiteLinkIcon = document.createElement "i"
-      deleteWebsiteLinkIcon.className = "icon-trash"
-      title.appendChild(document.createTextNode website.title)
-      pattern.appendChild(document.createTextNode website.pattern)
-      deleteWebsiteLink.appendChild deleteWebsiteLinkIcon
-      actions.appendChild deleteWebsiteLink
-      websiteNode.appendChild title
-      websiteNode.appendChild pattern
-      websiteNode.appendChild actions
-      userStudyWebsitesBody.appendChild websiteNode
-      
-    if count is 0
-      websiteNode = document.createElement "tr"
-      message = document.createElement "td"
-      message.setAttribute "colspan", "3"
-      message.className = "text-warning text-centered"
-      message.appendChild(document.createTextNode "No website selected for the study")
-      websiteNode.appendChild message
-      userStudyWebsitesBody.appendChild websiteNode
-      
-mem0r1es.options.deleteWebsite = (websiteId) ->
-  mem0r1es.options.sendMessage "userStudyToolbox", {title: "deleteUserStudyWebsite", content:websiteId}, () ->
-    mem0r1es.options.displayUserStudyWebsites()
-
-mem0r1es.options.saveUserStudyWebsite = () ->
-  website = {}
-  website.title = document.getElementById("userWebsiteTitle").value
-  website.pattern = document.getElementById("urlPattern").value
-  website.websiteId = new Date().getTime()
-  mem0r1es.options.sendMessage "userStudyToolbox", {title: "storeUserStudyWebsite", content:website}, () ->
-    $('#userStudyWebsiteForm').modal('hide')
-    mem0r1es.options.displayUserStudyWebsites()
-    
-mem0r1es.options.initializeUserStudyWebsite = () ->
-  document.getElementById('addUserStudyWebsitesLink').addEventListener 'click', () ->
-    document.getElementById("userWebsiteTitle").value = ""
-    document.getElementById("urlPattern").value = ""
-  document.getElementById('saveUserStudyWebsite').addEventListener 'click', mem0r1es.options.saveUserStudyWebsite
-  mem0r1es.options.displayUserStudyWebsites()
-
 mem0r1es.options.initializeOptions = () ->
   mem0r1es.options.initializeRules()
-  mem0r1es.options.initializeUserStudyWebsite()
   document.getElementById('dropBox').addEventListener "drop", mem0r1es.onDropMemories
   
   

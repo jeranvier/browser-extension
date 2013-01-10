@@ -53,37 +53,6 @@
       </div>
     </div>
     
-    <div class="modal hide fade" id="userStudyWebsiteForm">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-        <h3 id="userStudyWebsiteFormLabel">User study website</h3>
-      </div>
-      <div class="modal-body">
-        <div class="form-horizontal">
-        
-          <input type = "hidden" id="ruleId">
-          <div class="control-group">
-            <label class="control-label" for="userWebsiteTitle">Title of the website</label>
-            <div class="controls">
-              <input type = "text" id="userWebsiteTitle">
-            </div>
-          </div>
-          
-          <div class="control-group">
-            <label class="control-label" for="urlPattern">URL Prefix</label>
-            <div class="controls">
-              <input type = "text" id="urlPattern">
-            </div>
-          </div>
-          
-        </div> 
-      </div>
-      <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-        <button class="btn btn-primary" id="saveUserStudyWebsite">Save</button>
-      </div>
-    </div>
-    
     <div class="container">
       <h2>User study</h2>
       <h4>Extract information for the user study</h4>
@@ -93,20 +62,7 @@
           <div class="progress hide progress-striped" id="dumpProgress">
             <div class="bar" style="width: 0%;" id="dumpProgressBar"></div>
           </div>
-      <h4>Website selected for the study</h4> 
-      <table id="userStudyWebsites" class="table table-striped">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Prefix</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody id="userStudyWebsitesBody">
-        </tbody>
-      </table>  
-      <a href="#userStudyWebsiteForm" role="button" class="btn btn-primary pull-right clearfix" data-toggle="modal" id="addUserStudyWebsitesLink">Add new website</a>
-      <br>
+     
       <h4>Import data from user study</h4>
       <div id="dropBox" class="alert alert-info alert-block dropBox">
         <h3 id ="dropBoxText" class="text-centered">drop the Mem0r1es file here</h3>
