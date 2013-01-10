@@ -55,7 +55,7 @@ class window.mem0r1es.DocumentPreprocessor
     return @currentNumberOfFetchedFeatures is @numberOfFetchedFeatures
     
   takeScreenshot : () =>
-    chrome.tabs.captureVisibleTab @tab.windowID, {quality : 10, format : "jpeg"}, (dataUrl) =>
+    chrome.tabs.captureVisibleTab @tab.windowID, {quality : 80, format : "jpeg"}, (dataUrl) =>
       @storageManager.store "screenshots", {screenshotId:@pageId, _pageId:@pageId, screenshot:dataUrl}
       console.log "screenshot taken for #{@tab.url}"
       @screenshotTaken = true
