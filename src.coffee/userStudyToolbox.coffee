@@ -4,8 +4,16 @@ class window.mem0r1es.UserStudyToolbox
 
   constructor : (@storageManager)->
     @currentCount = 0
+    @initLastDump()
+    @dumpServerURL = "http://127.0.0.1:8080/"
     @checkIfNeedNewContext()
+    @dumpDailyData()
     console.log "Toolbox for the user study is ready"
+  
+  initLastDump : () ->
+    lastDump = localStorage.getItem 'lastDump'    
+    if not lastDump?
+      localStorage.setItem 'lastDump', 0
   
   onMessage : (message, sender, sendResponse) ->
     switch(message.title)
@@ -14,9 +22,6 @@ class window.mem0r1es.UserStudyToolbox
         when "retrieveLabels" then @retrieveLabels sendResponse
         when "saveSession" then @saveSession message.content, sendResponse
         when "newActivity" then @checkIfNeedNewContext sendResponse
-        when "getUserStudyWebsites" then @getUserStudyWebsites sendResponse
-        when "storeUserStudyWebsite" then @storeUserStudyWebsite message.content, sendResponse
-        when "deleteUserStudyWebsite" then @deleteUserStudyWebsite message.content, sendResponse 
         when "countDumpData" then @countDumpData sendResponse 
         when "countDumpedData" then @countDumpedData sendResponse 
         when "dumpData" then @dumpData sendResponse  
@@ -63,84 +68,75 @@ class window.mem0r1es.UserStudyToolbox
     if (new Date().getTime() - @getLastActivityTime())>10*1000*60
       chrome.tabs.create {'url': chrome.extension.getURL('html/sessionInfo.html'), pinned:true}
     @updateLastActivityTime()
-    
-  getUserStudyWebsites : (sendResponse) ->
-    query = new mem0r1es.Query().from("parameters").where("parameterId", "equals", "userStudyWebsites")
-    @storageManager.get query, (results) ->
-      if results.length is 1
-        sendResponse results[0].value
-        return
-      else
-        sendResponse {}
-        return
-      return
-    return
-
-  deleteUserStudyWebsite : (websiteId, sendResponse) =>
-    @getUserStudyWebsites (websites) =>
-      delete websites[websiteId]
-      @storageManager.store "parameters", {parameterId:"userStudyWebsites", value:websites}, sendResponse
-    
-  storeUserStudyWebsite : (website, sendResponse) =>
-    @getUserStudyWebsites (websites) =>
-      websites[website.websiteId] = website
-      @storageManager.store "parameters", {parameterId:"userStudyWebsites", value:websites}, sendResponse
   
   countDumpedData : (sendResponse) ->
     sendResponse @currentCount
     
   countDumpData : (sendResponse) ->
-    @currentCount = 0
-    @getUserStudyWebsites (websites) =>
-      count = Object.keys(websites).length
-      if count is 0
-        sendResponse 1
-        return
-      total = 0
-      for websiteId, website of websites
+    query = new mem0r1es.Query().from("temporary")
+    @storageManager.count query, (results) =>
+      sendResponse results
+
+  dumpDailyData : () =>
+    lastDump = parseInt(localStorage.getItem('lastDump'), 10)
+    @now = new Date().getTime()
+    if @now < lastDump + 1000*60*60*24
+      console.log "no dump needed"
+      return
+    else
+      console.log "dumping the latest data"
+    query = new mem0r1es.Query().from("temporary").where("timestamp", "between", lastDump, true , @now, false).getChildren [{name:"userAction", objectStore:"userActions"},{name:"screenshot", objectStore:"screenshots"}]
+    @storageManager.get query, (results) =>
+      console.log "dumping #{results.length} pages"
+      page = results.shift()
+      @tidyDumpUp page, results, {}, @sendToServer
+    return
+  
+  tidyDumpUp : (page, results, dump, callback) =>
+    if results.length is 0
+      callback dump
+      return
+      
+    if dump[page._userStudySessionId]?
+      dump[page._userStudySessionId].pages.push page
+      page = results.shift()
+      @currentCount++
+      @tidyDumpUp page, results, dump, callback
+    else
+      query = new mem0r1es.Query().from("userStudySessions").where("userStudySessionId", "equals", parseInt(page._userStudySessionId, 10))
+      @storageManager.get query, (subResults) =>
+        dump[page._userStudySessionId] = {}
+        dump[page._userStudySessionId].userStudySession = subResults[0]
+        dump[page._userStudySessionId].pages = []
+        dump[page._userStudySessionId].pages.push page
+        page = results.shift()
         @currentCount++
-        do (website) =>
-          query = new mem0r1es.Query().from("temporary").where("URL", "between", "#{website.pattern}", false , "#{website.pattern.slice 0,-1}#{String.fromCharCode(website.pattern.charCodeAt(website.pattern.length-1)+1) }", true)
-          @storageManager.count query, (results) =>
-            total += results
-            if count is 1
-              sendResponse total
-            else
-              count--
-          
-  dumpData : (sendResponse) ->
-    console.log "dumping data for user study"
-    dump = {}
-    lastDump = localStorage.getItem 'lastActivityTime'
-    if lastDump is null
-      lastDump = 0
+        @tidyDumpUp page, results, dump, callback
+  
+  sendToServer : (dump) =>
+    formData = new FormData()
+    formData.append "dump", JSON.stringify(dump)
     
-    @getUserStudyWebsites (websites) =>
-      count = Object.keys(websites).length
-      if count is 0
-        @currentCount = 1
-        sendResponse dump
+    xmlhttp = new XMLHttpRequest()
+    xmlhttp.open "POST", @dumpServerURL, true
+    xmlhttp.send(formData)
+    xmlhttp.onreadystatechange = () =>
+      if (xmlhttp.readyState isnt 4)
         return
-      for websiteId, website of websites
-        do (website) =>
-          query = new mem0r1es.Query().from("temporary").where("URL", "between", "#{website.pattern}", false , "#{website.pattern.slice 0,-1}#{String.fromCharCode(website.pattern.charCodeAt(website.pattern.length-1)+1) }", true).getChildren [{name:"userAction", objectStore:"userActions"},{name:"screenshot", objectStore:"screenshots"}]
-          
-          @storageManager.get query, (results) =>
-            subcount = results.length
-            for result in results
-              do(result) =>
-                query = new mem0r1es.Query().from("userStudySessions").where("userStudySessionId", "equals", parseInt(result._userStudySessionId, 10))
-                @storageManager.get query, (subResults) =>
-                  result.userStudySession = subResults[0]
-                  if subcount is 1
-                    dump[website.title] = results
-                    if count is 1
-                      sendResponse dump
-                    else
-                      count--
-                  else
-                    subcount--
-                    @currentCount++
+      if (xmlhttp.status is 200) 
+        console.log "dump done."
+        localStorage.setItem 'lastDump', @now
+
+  dumpData : (sendResponse) =>
+    console.log "dumping data for user study"
+    @currentCount=0
+    query = new mem0r1es.Query().from("temporary").getChildren [{name:"userAction", objectStore:"userActions"},{name:"screenshot", objectStore:"screenshots"}]
+    @storageManager.get query, (results) =>
+      console.log "dumping #{results.length} pages"
+      page = results.shift()
+      @currentCount++
+      @tidyDumpUp page, results, {}, sendResponse
+    return
                     
   storeMem0r1esFile : (messageContent, sendResponse) ->
     @storageManager.clearStore "temporary"
@@ -149,22 +145,19 @@ class window.mem0r1es.UserStudyToolbox
     @storageManager.clearStore "screenshots"
     try
       mem0ries = JSON.parse messageContent     
-    catch error
-      response = "Invalid json"
-      sendResponse response
+    catch error 
+      sendResponse "Invalid json"
+
+    count=0
     
-    count = 0
-    for key, websites of mem0ries
-      count = count + websites.length
-    for key, websites of mem0ries
-      for website in websites
-        @storageManager.store "userStudySessions", website.userStudySession
-        delete website.userStudySession
-        @storageManager.store "temporary", website, () =>
-          if count is 1
+    for key, session of mem0ries
+      @storageManager.store "userStudySessions", session.userStudySession
+      for page in session.pages
+        count++
+        @storageManager.store "temporary", page, () =>
+          count--
+          if count is 0
             sendResponse "Mem0r1es Loaded"
-          else
-            count--
   
   countMem0r1es : (sendResponse) =>
     query = new mem0r1es.Query().from("temporary")
