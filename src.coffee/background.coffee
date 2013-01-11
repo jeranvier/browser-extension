@@ -18,8 +18,11 @@ class window.mem0r1es.Background
     
     #Initialize the document preprocessor pool
     @DocumentPreprocessorPool = new mem0r1es.DocumentPreprocessorPool @storageManager
+    
+    #Initialize the network listener
+    @networkListener = new mem0r1es.NetworkListener(@DocumentPreprocessorPool)
       
-    #Initialize the navigation listener
+    #Initialize the user study toolbox
     @userStudyToolbox = new mem0r1es.UserStudyToolbox @storageManager
     
     #Initialize the message listener

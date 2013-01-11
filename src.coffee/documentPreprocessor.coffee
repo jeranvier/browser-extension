@@ -2,13 +2,13 @@ window.mem0r1es = {} if not window.mem0r1es?
 
 class window.mem0r1es.DocumentPreprocessor
 
-  constructor : (@message, sender, sendResponse, @storageManager, @activeTab) ->
+  constructor : (@message, @referer, sender, sendResponse, @storageManager, @activeTab) ->
     @dontStore = false
     @pageId = @message.content.pageId
     @tab = sender.tab
     @document = {}
     @currentNumberOfFetchedFeatures = 0
-    @numberOfFetchedFeatures = 7
+    @numberOfFetchedFeatures = 8
     console.log "new Document processor created to handle the mem0r1e from #{@tab.url} (#{@pageId})"
     @preprocessMem0r1e()
     sendResponse {title:"documentPreprocessorCreated", pageId:@pageId}
@@ -22,6 +22,7 @@ class window.mem0r1es.DocumentPreprocessor
       @isActive = false
     @getLanguage @tab
     @set "URL", @tab.url
+    @set "referer", @referer
     @set "reverseDomainName", @tab.url.split("/")[2].split(".").reverse().join(".")
     @set "timestamp", @message.content.timestamp
     @set "pageId", @message.content.pageId

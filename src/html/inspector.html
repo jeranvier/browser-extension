@@ -40,6 +40,13 @@
             <p>
               <strong>URL:</strong> <a href="{{ result.URL }}">{{ result.URL }}</a>
               <br>
+              <strong>Referrer:</strong>
+              <span ng-switch on="result.referer">
+                <span ng-switch-when="unknown">unknown</span>
+                <span ng-switch-when="noReferer">no referrer</span>
+                <span ng-switch-default><a href="{{ result.referer }}">{{ result.referer }}</a></span>
+              </span>
+              <br>
               <strong>Language:</strong> {{ result.language }}
             </p>
             
