@@ -3,7 +3,9 @@ window.mem0r1es = {} if not window.mem0r1es?
 class window.mem0r1es.DocumentPreprocessorPool
   
   constructor : (@storageManager) ->
+    @browserState = "active"
     @listCleanerInterval = 1000*60*5
+    @idleInterval = 5*60 #in second...
     @referersList = {}
     @startReferersListCleaner()
     @documentPreprocessors = {}
@@ -22,6 +24,17 @@ class window.mem0r1es.DocumentPreprocessorPool
       console.log "deleting the documentPreprocessor for tabId : #{tabId}"
       delete @documentPreprocessors[tabId]
     console.log "document preprocessor pool ready"
+    @setupUpIdleListener()
+  
+  setupUpIdleListener : () =>
+    setInterval () =>
+      chrome.idle.queryState @idleInterval, (newState) =>
+        if @browserState isnt newState
+          console.log "User state switched to #{newState}"
+          @browserState = newState
+          if @documentPreprocessors[@activeTab.id]?
+            @documentPreprocessors[@activeTab.id].setNotIdle newState is "idle"
+    ,1000*60
     
   #Handles messages received from background.js
   onMessage : (message, sender, sendResponse) ->

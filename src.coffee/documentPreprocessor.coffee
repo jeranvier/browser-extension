@@ -4,19 +4,25 @@ class window.mem0r1es.DocumentPreprocessor
 
   constructor : (@message, @referer, sender, sendResponse, @storageManager, @activeTab) ->
     @dontStore = false
+    @idleInterval = 5*60 #in second...
     @pageId = @message.content.pageId
     @tab = sender.tab
     @document = {}
+    @document.focusTime =[]
+    @document.activityTime =[]
     @currentNumberOfFetchedFeatures = 0
     @numberOfFetchedFeatures = 8
     console.log "new Document processor created to handle the mem0r1e from #{@tab.url} (#{@pageId})"
     @preprocessMem0r1e()
     sendResponse {title:"documentPreprocessorCreated", pageId:@pageId}
     @screenshotTaken = false
+    chrome.idle.queryState @idleInterval, (state) =>
+      @setNotIdle state is "idle"
   
   preprocessMem0r1e : () ->
     if @tab.active
       @isActive = true
+      @document.focusTime.push {timestamp: new Date().getTime(), focused: @isActive}
       @takeScreenshot()
     else
       @isActive = false
@@ -90,6 +96,12 @@ class window.mem0r1es.DocumentPreprocessor
     
   setTabActivated : (isActive) ->
     @isActive = isActive
+    @document.focusTime.push {timestamp: new Date().getTime(), focused: isActive}
+    @storetemporaryDocument()
     if not @screenshotTaken and isActive
       @takeScreenshot()
     return
+    
+  setNotIdle : (isIdle) ->
+    @document.activityTime.push {timestamp: new Date().getTime(), active: not isIdle}
+    @storetemporaryDocument()
