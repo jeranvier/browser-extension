@@ -3,6 +3,7 @@ window.mem0r1es = {} if not window.mem0r1es?
 class window.mem0r1es.UserStudyToolbox
 
   constructor : (@storageManager)->
+    @sessionPageDisplayed = 0
     @currentCount = 0
     @initLastDump()
     @dumpServerURL = "http://127.0.0.1:8080/"
@@ -46,6 +47,7 @@ class window.mem0r1es.UserStudyToolbox
     return
     
   saveSession : (messageContent, sendResponse) =>
+    @sessionPageDisplayed = false
     @storageManager.store "userStudySessions", messageContent, () =>
       @updateLastActivityTime()
       localStorage.setItem 'lastUserStudySessionId', messageContent.userStudySessionId
@@ -65,8 +67,9 @@ class window.mem0r1es.UserStudyToolbox
     return lastActivityTime
     
   checkIfNeedNewContext : () ->
-    if (new Date().getTime() - @getLastActivityTime())>10*1000*60
+    if (new Date().getTime() - @getLastActivityTime())>10*1000*60 and not @sessionPageDisplayed
       chrome.tabs.create {'url': chrome.extension.getURL('html/sessionInfo.html'), pinned:true}
+      @sessionPageDisplayed = true
     @updateLastActivityTime()
   
   countDumpedData : (sendResponse) ->
