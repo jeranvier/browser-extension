@@ -91,6 +91,9 @@ class window.mem0r1es.UserStudyToolbox
     query = new mem0r1es.Query().from("temporary").where("timestamp", "between", lastDump, true , @now, false).getChildren [{name:"userAction", objectStore:"userActions"},{name:"screenshot", objectStore:"screenshots"}]
     @storageManager.get query, (results) =>
       console.log "dumping #{results.length} pages"
+      if results.length > 50
+        console.log "number of pages too important to be dumped remotely"
+        return
       if results.length > 0
         page = results.shift()
       else
