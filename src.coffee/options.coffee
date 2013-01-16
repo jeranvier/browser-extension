@@ -111,8 +111,9 @@ mem0r1es.options.initializeRules = () ->
 mem0r1es.options.initializeOptions = () ->
   mem0r1es.options.initializeRules()
   document.getElementById('dropBox').addEventListener "drop", mem0r1es.onDropMemories
-  
-  
+  document.addEventListener "dragover", (event) ->
+    event.preventDefault() #Chrome 24.x.x introduces a behavior that places the default action (open file) above customed drag n drop directives.
+    
   document.getElementById('extractUserStudyLink').addEventListener 'click', () =>
     $("#extractUserStudyLink").button 'loading'
     $("#downloadDumpLink").fadeOut()
