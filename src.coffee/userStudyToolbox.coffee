@@ -185,7 +185,7 @@ class window.mem0r1es.UserStudyToolbox
       sendResponse results
   
   getMem0r1es : (messageContent, sendResponse) ->
-    query = new mem0r1es.Query().from("temporary").where("timestamp","greaterThan",0).getChildren([{name:"screenshot", objectStore:"screenshots"}]).limit messageContent.limitMin, messageContent.limitMax
+    query = new mem0r1es.Query().from("temporary").where("timestamp","greaterThan",0).getChildren([{name:"screenshot", objectStore:"screenshots"}, {name:"userActions", objectStore:"userActions"}]).limit messageContent.limitMin, messageContent.limitMax
     @storageManager.get query, (results) =>
       count = results.length
       for result in results

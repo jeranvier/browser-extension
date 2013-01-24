@@ -3,11 +3,13 @@
   <head>
     <title>Mem0r1es inspector</title>
     <link href="../external/css/bootstrap.css" rel="stylesheet" media="screen">
-    <script src="../external/js/jquery-1.8.3.js"></script>
-    <script src="../external/js/bootstrap.js"></script>
-    <script src="../external/js/angular.js"></script>
-    <script src = "../js/inspectorController.js" ></script>
-    <script src = "../js/inspector.js" ></script>
+    <script type="text/javascript" src="../external/js/jquery-1.8.3.js"></script>
+    <script type="text/javascript" src="../external/js/bootstrap.js"></script>
+    <script type="text/javascript" src="../external/js/angular.js"></script>
+    <script type="text/javascript" src="../external/js/d3.v3.min.js"></script>
+    <script type="text/javascript" src = "../js/timeline.js" ></script>
+    <script type="text/javascript" src = "../js/inspectorController.js" ></script>
+    <script type="text/javascript" src = "../js/inspector.js" ></script>
   </head>
 
   <body data-ng-controller="controller">
@@ -23,10 +25,10 @@
           </div>
           <div class="pagination-centered">
             <ul class="block">
-              <li ng-repeat="page in count" id="page_{{ page.page }}" class="pages badge"><a ng-click="loadData(page)" class="white">{{ page.page }}</a></li>
+              <li data-ng-repeat="page in count" id="page_{{ page.page }}" class="pages badge"><a data-ng-click="loadData(page)" class="white">{{ page.page }}</a></li>
             </ul>
           </div>
-          <div class="well" ng-repeat="result in results">
+          <div class="well" data-ng-repeat="result in results">
             <div class="row-fluid">
               <div class="span8">
                 <h4>{{ result.title }}</h4>
@@ -41,13 +43,18 @@
               <strong>URL:</strong> <a href="{{ result.URL }}">{{ result.URL }}</a>
               <br>
               <strong>Referrer:</strong>
-              <span ng-switch on="result.referer">
-                <span ng-switch-when="unknown">unknown</span>
-                <span ng-switch-when="noReferer">no referrer</span>
-                <span ng-switch-default><a href="{{ result.referer }}">{{ result.referer }}</a></span>
+              <span data-ng-switch data-on="result.referer">
+                <span data-ng-switch-when="unknown">unknown</span>
+                <span data-ng-switch-when="noReferer">no referrer</span>
+                <span data-ng-switch-default><a href="{{ result.referer }}">{{ result.referer }}</a></span>
               </span>
               <br>
+              <strong>Duration:</strong> <span data-prettify-duration="timeSpentOnThePage"></span>
+              <br>
               <strong>Language:</strong> {{ result.language }}
+              <br>
+              <strong>Page focus: </strong><div data-create-focus-timeline></div>
+              <strong>User activity: </strong><div data-create-activity-timeline></div>
             </p>
             
             <div class="row-fluid">

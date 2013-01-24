@@ -35,11 +35,27 @@ class window.mem0r1es.InspectorController
         result.title = @getPageTitle result.DOM
         result.sessionPicture = ""
         result.sessionLocation = ""
+        
         if result.userStudySession?
           result.sessionPicture = result.userStudySession.picture
           latitude = result.userStudySession.location.latitude
           longitude = result.userStudySession.location.longitude
           result.sessionLocation = "http://maps.googleapis.com/maps/api/staticmap?center=#{latitude},#{longitude}&zoom=18&size=450x338&maptype=hybrid&markers=color:red%7Clabel:Z%7C#{latitude},#{longitude}&sensor=false"
+        
+        lastFocus = parseInt(result.focusTime[result.focusTime.length-1].timestamp ,10)
+        lastActivity= parseInt(result.activityTime[result.activityTime.length-1].timestamp ,10)
+        if lastFocus < lastActivity
+          result.exitTimestamp = lastActivity + 10000
+        else
+          result.exitTimestamp = lastFocus + 10000
+          
+        for userAction in result.userActions
+          if userAction.type is "unload"
+            result.exitTimestamp = userAction.timestamp
+            break
+            
+        result.timeSpentOnThePage = result.exitTimestamp - result.timestamp
+        
       @scope.$apply () =>
         delay.resolve results
   
