@@ -31,7 +31,7 @@ class window.mem0r1es.InspectorController
         else
           result.screenshot = ""
         d = new Date(result.timestamp)
-        result.date = "#{d.getDate()}/#{d.getMonth()}/#{d.getFullYear()} - #{d.getHours()}:#{d.getMinutes()}"
+        result.date = "#{d.getDate()}/#{d.getMonth()+1}/#{d.getFullYear()} - #{d.getHours()}:#{d.getMinutes()}"
         result.title = @getPageTitle result.DOM
         result.sessionPicture = ""
         result.sessionLocation = ""
@@ -70,7 +70,7 @@ class window.mem0r1es.InspectorController
     return false
     
   sendMessage : (module, message, callback)->
-    if chrome.extension? 
+    if chrome.extension?
       chrome.extension.sendMessage {module:module, message:message},(response)->
         if callback?
           callback response
