@@ -11,7 +11,8 @@
     "*://*/*",
 		"webNavigation",
     "idle",
-    "geolocation"
+    "geolocation",
+    "unlimitedStorage"
 	],
 	"browser_action": {
 		"name": "mem0r1es",

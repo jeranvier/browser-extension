@@ -117,28 +117,27 @@ mem0r1es.options.initializeOptions = () ->
   document.getElementById('extractUserStudyLink').addEventListener 'click', () =>
     $("#extractUserStudyLink").button 'loading'
     $("#downloadDumpLink").fadeOut()
-    mem0r1es.options.sendMessage "userStudyToolbox", {title: "countDumpData"},(totalCount) =>
-      $("#dumpProgress").fadeIn()
-      mem0r1es.updateProgressBar totalCount
+    $("#dumpProgress").fadeIn()
+    mem0r1es.updateProgressBar 1
         
-      mem0r1es.options.sendMessage "userStudyToolbox", {title: "dumpData"}, (dump) =>
-        #xmlhttp=new XMLHttpRequest()
-        #xmlhttp.open "POST", "http://127.0.0.1:8080/", true
-        #xmlhttp.setRequestHeader "Content-type", "application/json"
-        #xmlhttp.send(JSON.stringify(dump))
-        blob = new Blob [JSON.stringify(dump)], {type: 'application/json'}
-        downloadDumpLink = document.getElementById("downloadDumpLink")
-        downloadDumpLink.href = window.webkitURL.createObjectURL blob
+    mem0r1es.options.sendMessage "userStudyToolbox", {title: "dumpData"}, (dump) =>
+      #xmlhttp=new XMLHttpRequest()
+      #xmlhttp.open "POST", "http://127.0.0.1:8080/", true
+      #xmlhttp.setRequestHeader "Content-type", "application/json"
+      #xmlhttp.send(JSON.stringify(dump))
   return
 
 mem0r1es.updateProgressBar = (totalCount) =>
-    mem0r1es.options.sendMessage "userStudyToolbox", {title: "countDumpedData"},(currentCount) =>
-      console.log "#{currentCount} / #{totalCount}"
-      ratio = currentCount*100/totalCount
+    mem0r1es.options.sendMessage "userStudyToolbox", {title: "countDumpedData"},(ratio) =>
+      console.log ratio
       $("#dumpProgressBar").width "#{ratio}%"
-      if ratio == 100
-        $("#downloadDumpLink").fadeIn()
-        $("#extractUserStudyLink").button 'reset'
+      if ratio > 99.9
+        alert ratio
+        mem0r1es.options.sendMessage "userStudyToolbox", {title: "getDumpURL"},(URL) =>
+          downloadDumpLink = document.getElementById("downloadDumpLink")
+          downloadDumpLink.href = URL
+          $("#downloadDumpLink").fadeIn()
+          $("#extractUserStudyLink").button 'reset'
       else
         setTimeout () ->
           mem0r1es.updateProgressBar totalCount

@@ -1,14 +1,16 @@
 window.mem0r1es = {} if not window.mem0r1es?
-
+window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFileSystem
 class window.mem0r1es.UserStudyToolbox
 
   constructor : (@storageManager)->
     @sessionPageDisplayed = 0
     @currentCount = 0
+    @totalCount = -1
+    @chunkSize = 1000*1000*10
     @initLastDump()
     @dumpServerURL = "http://127.0.0.1:8080/"
     @checkIfNeedNewContext()
-    @dumpDailyData()
+    #@dumpDailyData()
     console.log "Toolbox for the user study is ready"
   
   initLastDump : () ->
@@ -23,9 +25,9 @@ class window.mem0r1es.UserStudyToolbox
         when "retrieveLabels" then @retrieveLabels sendResponse
         when "saveSession" then @saveSession message.content, sendResponse
         when "newActivity" then @checkIfNeedNewContext sendResponse
-        when "countDumpData" then @countDumpData sendResponse 
         when "countDumpedData" then @countDumpedData sendResponse 
-        when "dumpData" then @dumpData sendResponse  
+        when "dumpData" then @dumpData sendResponse
+        when "getDumpURL" then @getDumpURL sendResponse
         when "storeMem0r1esFile" then @storeMem0r1esFile message.content, sendResponse
         when "getMem0r1es" then @getMem0r1es message.content, sendResponse
         when "countMem0r1es" then @countMem0r1es sendResponse
@@ -73,12 +75,11 @@ class window.mem0r1es.UserStudyToolbox
     @updateLastActivityTime()
   
   countDumpedData : (sendResponse) ->
-    sendResponse @currentCount
-    
-  countDumpData : (sendResponse) ->
-    query = new mem0r1es.Query().from("temporary")
-    @storageManager.count query, (results) =>
-      sendResponse results
+    if @totalCount<0
+      sendResponse 0.01
+    else
+      console.log "dump: #{@currentCount*100/@totalCount}"
+      sendResponse @currentCount*100/@totalCount
 
   dumpDailyData : () =>
     lastDump = parseInt(localStorage.getItem('lastDump'), 10)
@@ -111,7 +112,6 @@ class window.mem0r1es.UserStudyToolbox
       dump[page._userStudySessionId].pages.push page
       if results.length > 0
         page = results.shift()
-        @currentCount++
       else
         page = null
       
@@ -125,7 +125,6 @@ class window.mem0r1es.UserStudyToolbox
         dump[page._userStudySessionId].pages.push page
         if results.length > 0
           page = results.shift()
-          @currentCount++
         else
           page = null
         
@@ -147,15 +146,66 @@ class window.mem0r1es.UserStudyToolbox
 
   dumpData : (sendResponse) =>
     console.log "dumping data for user study"
-    @currentCount=0
     query = new mem0r1es.Query().from("temporary").getChildren [{name:"userAction", objectStore:"userActions"},{name:"screenshot", objectStore:"screenshots"}]
     @storageManager.get query, (results) =>
       console.log "dumping #{results.length} pages"
       page = results.shift()
-      @currentCount++
-      @tidyDumpUp page, results, {}, sendResponse
+      @tidyDumpUp page, results, {}, @writeToDisk
     return
-                    
+    
+  writeToDisk : (dump) =>
+    @currentCount=0
+    window.requestFileSystem window.TEMPORARY, 1024*1024*1024, (@fs)=>
+      @fs.root.getFile 'dump.json', {create: true}, (fileEntry)=>
+        
+        fileEntry.remove ()=>
+          console.log "file removed"
+          @fs.root.getFile 'dump.json', {create: true}, (fileEntry)=>
+            console.log fileEntry.toURL()
+            @DumpURL = fileEntry.toURL()
+            stringifiedDump = JSON.stringify(dump)
+            @totalCount = stringifiedDump.length/@chunkSize
+            @writeNextChunk stringifiedDump
+          , (e) ->
+            console.log "Cannot write file to disk"
+          return
+        , (e) ->
+        console.log "Cannot delete file to disk"
+      return
+    return
+    
+  getDumpURL : (sendResponse) =>
+    sendResponse @DumpURL
+    
+  writeNextChunk : (remainingDump) =>
+    if remainingDump.length is 0
+      return
+      
+    if remainingDump.length > @chunkSize
+      chunk = remainingDump.substring(0,@chunkSize)
+      remainingDump = remainingDump.substring(@chunkSize)
+    else
+      chunk = remainingDump
+      remainingDump = ""
+    @fs.root.getFile 'dump.json', {create: false}, (fileEntry)=>
+            fileEntry.createWriter (fileWriter)=>
+              
+              fileWriter.onwriteend = (e) =>
+                @currentCount++
+                @writeNextChunk remainingDump
+              
+              fileWriter.onerror  = (e) =>
+                console.log e
+              blob = new Blob [chunk]
+              fileWriter.seek(fileWriter.length)
+              fileWriter.write(blob)
+            return
+          , (e) ->
+            console.log "Cannot write file to disk"
+          return
+        return
+    return
+    
   storeMem0r1esFile : (messageContent, sendResponse) ->
     @storageManager.clearStore "temporary"
     @storageManager.clearStore "userStudySessions"
