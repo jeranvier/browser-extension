@@ -32,6 +32,7 @@ class window.mem0r1es.UserStudyToolbox
         when "getMem0r1es" then @getMem0r1es message.content, sendResponse
         when "countMem0r1es" then @countMem0r1es sendResponse
         when "processFile" then @processFile message.content, sendResponse
+        when "storeIncognitoSession" then @storeIncognitoSession message.content, sendResponse
     return
     
   addLabel : (messageContent, sendResponse) =>
@@ -104,9 +105,13 @@ class window.mem0r1es.UserStudyToolbox
     return
   
   tidyDumpUp : (page, results, dump, callback) =>
-
-    if page is null
-      callback dump
+    
+    if not page?
+      query = new mem0r1es.Query().from("userStudySessions").where("userStudySessionId", "equals", "incognitoSessions")
+      @storageManager.get query, (results) =>
+        if results.length is 1
+          dump[results[0].userStudySessionId] = {userStudySession : results[0]}
+        callback dump
       return
       
     if dump[page._userStudySessionId]?
@@ -148,7 +153,7 @@ class window.mem0r1es.UserStudyToolbox
   dumpData : (sendResponse) =>
     console.log "dumping data for user study"
     query = new mem0r1es.Query().from("temporary").getChildren [{name:"userAction", objectStore:"userActions"},{name:"screenshot", objectStore:"screenshots"}]
-    @storageManager.get query, (results) =>
+    @storageManager.get query, (results) =>  
       console.log "dumping #{results.length} pages"
       page = results.shift()
       @tidyDumpUp page, results, {}, @writeToDisk
@@ -231,16 +236,18 @@ class window.mem0r1es.UserStudyToolbox
               sendResponse "Invalid json"
             count=0
             for key, session of mem0ries
-              for page in session.pages
-                count++
+              if session.pages?
+                for page in session.pages
+                  count++
             
             for key, session of mem0ries
               @storageManager.store "userStudySessions", session.userStudySession
-              for page in session.pages
-                @storageManager.store "temporary", page, () =>
-                  count--
-                  if count is 0
-                    sendResponse "Mem0r1es Loaded"
+              if session.pages?
+                for page in session.pages
+                  @storageManager.store "temporary", page, () =>
+                    count--
+                    if count is 0
+                      sendResponse "Mem0r1es Loaded"
           
           reader.onerror = (event) => 
             console.error event.target.error.code
@@ -273,3 +280,24 @@ class window.mem0r1es.UserStudyToolbox
               sendResponse results
             else
               count--
+              
+  storeIncognitoSession : (messageContent, sendResponse) =>
+    query = new mem0r1es.Query().from("userStudySessions").where("userStudySessionId", "equals", "incognitoSessions")
+    @storageManager.get query, (results) =>
+      if results.length is 1
+        incognitoSessions = results[0]
+      else
+        incognitoSessions ={userStudySessionId: "incognitoSessions", sessions: new Array()}
+      
+      if messageContent.status is "start"
+        incognitoSessions.sessions.push {start: messageContent.timestamp, browserStates: new Array()}
+      else if messageContent.status is "end"
+        incognitoSessions.sessions[incognitoSessions.sessions.length-1].end = messageContent.timestamp
+      else
+        incognitoSessions.sessions[incognitoSessions.sessions.length-1].browserStates.push {browserState: messageContent.status, timestamp: messageContent.timestamp}
+      
+      @storageManager.store "userStudySessions", incognitoSessions, ()=>
+        sendResponse "incognitoSessions updated"
+      
+      
+      

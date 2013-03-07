@@ -123,7 +123,7 @@ class window.mem0r1es.StorageExecutor
               n--
           cursor.continue()
         else
-          if query.children? and query.children.length isnt 0
+          if query.children? and query.children.length isnt 0 and results.length isnt 0
             count = results.length * query.children.length
             for result in results
               do(result) =>
