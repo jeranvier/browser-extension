@@ -132,7 +132,6 @@ mem0r1es.updateProgressBar = (totalCount) =>
       console.log ratio
       $("#dumpProgressBar").width "#{ratio}%"
       if ratio > 99.9
-        alert ratio
         mem0r1es.options.sendMessage "userStudyToolbox", {title: "getDumpURL"},(URL) =>
           downloadDumpLink = document.getElementById("downloadDumpLink")
           downloadDumpLink.href = URL
@@ -144,18 +143,35 @@ mem0r1es.updateProgressBar = (totalCount) =>
         ,1000
 
 mem0r1es.onDropMemories = (event) ->
+  event.preventDefault()
   files = event.dataTransfer.files
-  count = files.length;
   for file in files
     mem0r1es.handleMem0r1esFile file
-  event.preventDefault()
+  
 
 mem0r1es.handleMem0r1esFile = (file) =>
-  reader = new FileReader()
-  reader.onload = (fileLoadedEvent) =>
-    $('#dropBoxText').text "Mem0r1es Loading..."
-    mem0r1es.options.sendMessage "userStudyToolbox", {title: "storeMem0r1esFile", content:fileLoadedEvent.target.result}, (response) =>
-      $('#dropBoxText').text response
-    
-  reader.readAsText file
+  $('#dropBoxText').text "Mem0r1es Loading: #{file.name}"
+  window.webkitStorageInfo.requestQuota TEMPORARY, 1024*1024*1024, (grantedBytes)=>
+    window.webkitRequestFileSystem TEMPORARY, grantedBytes, (fs) =>
+      fs.root.getFile 'dump.json', {create: true}, (fileEntry) =>  
+        fileEntry.remove ()=>
+          console.log "file removed"
+          fs.root.getFile 'dump.json', {create: true}, (fileEntry)=>
+            fileEntry.createWriter (fileWriter) =>
+              fileWriter.onwriteend = (e) =>
+                $('#dropBoxText').text "Mem0r1es processing"
+                console.log fileEntry.toURL()
+                mem0r1es.options.sendMessage "userStudyToolbox", {title: "processFile", content:fileEntry.name},(message) =>
+                  $('#dropBoxText').text message
+              fileWriter.write(file)
+            ,(e) ->
+              console.log "Cannot write file to disk"
+          ,(e) ->
+              console.log "Cannot write file to disk"
+      ,(e) ->
+        console.log "Cannot write file to disk"
+    ,(e) ->
+      console.log "Cannot get file system"
+  ,(e) ->
+    console.log "Cannot get quotas"
 document.addEventListener 'DOMContentLoaded', mem0r1es.options.initializeOptions

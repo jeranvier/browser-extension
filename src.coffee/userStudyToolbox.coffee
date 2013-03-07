@@ -31,6 +31,7 @@ class window.mem0r1es.UserStudyToolbox
         when "storeMem0r1esFile" then @storeMem0r1esFile message.content, sendResponse
         when "getMem0r1es" then @getMem0r1es message.content, sendResponse
         when "countMem0r1es" then @countMem0r1es sendResponse
+        when "processFile" then @processFile message.content, sendResponse
     return
     
   addLabel : (messageContent, sendResponse) =>
@@ -206,28 +207,53 @@ class window.mem0r1es.UserStudyToolbox
         return
     return
     
-  storeMem0r1esFile : (messageContent, sendResponse) ->
+  processFile : (messageContent, sendResponse) =>
     @storageManager.clearStore "temporary"
     @storageManager.clearStore "userStudySessions"
     @storageManager.clearStore "userActions"
     @storageManager.clearStore "screenshots"
-    try
-      mem0ries = JSON.parse messageContent     
-    catch error 
-      sendResponse "Invalid json"
+    window.requestFileSystem window.TEMPORARY, 1024*1024, (fs)=>
+      fs.root.getFile messageContent, {create: true}, (fileEntry)=>
+        fileEntry.file (file) =>
+          reader = new FileReader()
+          
+          reader.onload = (e) =>
+          
+            bufView = new Uint8Array(e.target.result)
+            e.target.result=null
+            bufString = new Array()
+            for byte in bufView
+              bufString.push String.fromCharCode(byte)
+            bufView=null
+            try
+              mem0ries = JSON.parse bufString.join("")     
+            catch error 
+              sendResponse "Invalid json"
+            count=0
+            for key, session of mem0ries
+              for page in session.pages
+                count++
+            
+            for key, session of mem0ries
+              @storageManager.store "userStudySessions", session.userStudySession
+              for page in session.pages
+                @storageManager.store "temporary", page, () =>
+                  count--
+                  if count is 0
+                    sendResponse "Mem0r1es Loaded"
+          
+          reader.onerror = (event) => 
+            console.error event.target.error.code
+            sendResponse "Cannot read file"
+            
+          reader.readAsArrayBuffer(file)
+        , (e) ->
+          sendResponse "Cannot read file"
+      , (e) ->
+        sendResponse "Cannot open file"
+    , (e) ->
+      sendResponse "Cannot access file system"
 
-    count=0
-    
-    for key, session of mem0ries
-      for page in session.pages
-        count++
-    for key, session of mem0ries
-      @storageManager.store "userStudySessions", session.userStudySession
-      for page in session.pages
-        @storageManager.store "temporary", page, () =>
-          count--
-          if count is 0
-            sendResponse "Mem0r1es Loaded"
   
   countMem0r1es : (sendResponse) =>
     query = new mem0r1es.Query().from("temporary")
