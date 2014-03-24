@@ -2,13 +2,15 @@ window.mem0r1es = {} if not window.mem0r1es?
 
 class window.mem0r1es.Background
   init : () ->
-    @idleInterval = 5*60 #in second...
+    @idleInterval = 10*60 #in second...
     @browserState = "active"
     
     console.log "initializing mem0r1es"
     #open and initialize the database
     @storageManager = new mem0r1es.StorageManager()
     @storageManager.openDB()
+    
+    @setupIdleListener()
     
     #Create the icon for the popup
     @icon = new mem0r1es.Icon()
@@ -20,7 +22,7 @@ class window.mem0r1es.Background
     @dslProcessor = new mem0r1es.DSLProcessor @storageManager
     
     #Initialize the document preprocessor pool
-    @DocumentPreprocessorPool = new mem0r1es.DocumentPreprocessorPool @storageManager
+    @DocumentPreprocessorPool = new mem0r1es.DocumentPreprocessorPool @storageManager, @idleInterval
     
     #Initialize the network listener
     @networkListener = new mem0r1es.NetworkListener(@DocumentPreprocessorPool)
@@ -35,8 +37,7 @@ class window.mem0r1es.Background
   
   activate : (sendResponse = null) ->
     console.log "reactivating mem0r1es"
-    if @IdleListenerInterval?
-      clearInterval(@IdleListenerInterval)
+    
     @userStudyToolbox.onMessage {title:"storeIncognitoSession", content:{status: "end", timestamp: new Date().getTime()}}, "background", (response)->
       console.log response
     @icon = new mem0r1es.Icon()
@@ -46,8 +47,6 @@ class window.mem0r1es.Background
       sendResponse {status : "ok", text: "Go incognito"}
     
   deactivate : (sendResponse = null) ->
-    console.log "deactivating mem0r1es"
-    @setupIdleListener()
     
     @userStudyToolbox.onMessage {title:"storeIncognitoSession", content:{status: "start", timestamp: new Date().getTime()}}, "background", (response)->
       console.log response
@@ -67,11 +66,13 @@ class window.mem0r1es.Background
     @IdleListenerInterval = setInterval () =>
       chrome.idle.queryState @idleInterval, (newState) =>
         if @browserState isnt newState
+          console.log "User state switched from #{@browserState} to #{newState}"
           @browserState = newState
-          console.log "User state switched to #{@browserState} while in incognito mode"
-          @userStudyToolbox.onMessage {title:"storeIncognitoSession", content:{status: @browserState, timestamp: new Date().getTime()}}, "background", (response)->
-            console.log response
-    ,1000*30
+          if @browserState is "active" #need for a new session picture
+            console.log "true"
+            @userStudyToolbox.onMessage {title:"newActivity"}, @, () ->
+              console.log response
+    ,5*1000 #every 5 sec we check
   
   toggleMem0r1es : (sendResponse) ->
     if @state is "on"
@@ -113,8 +114,9 @@ class window.mem0r1es.Background
         when "documentPreprocessor"
           if @state is "on"
             @DocumentPreprocessorPool.onMessage request.message, sender, sendResponse
-          #during the user study, we update the last activity time (to get a new context after 15min of inactivity)
-          @userStudyToolbox.onMessage {title:"newActivity"}, sender, sendResponse
+          #during the user study, we update the last activity time (to get a new context after x min of inactivity)
+          #handled by the idle API directly
+          #@userStudyToolbox.onMessage {title:"newActivity"}, sender, sendResponse
         when "DSLProcessor"
           @dslProcessor.onMessage request.message, sender, sendResponse
         when "background"

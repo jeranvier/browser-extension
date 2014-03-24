@@ -6,6 +6,11 @@ class window.mem0r1es.sessionInfo
     document.addEventListener 'DOMContentLoaded', @createListeners
     document.addEventListener 'DOMContentLoaded', @initializeCamera
     document.addEventListener 'DOMContentLoaded', @getCoordinate
+    window.onbeforeunload = (event) =>
+      @localMediaStream.stop()
+      @sendMessage "userStudyToolbox", {title:"setSessionPageDisplayed", content:{value:false}}, (response) =>
+      
+    
     
   #Send message from the popup (UI) to the extension.
   #Arguments: The module to which redirect the message, the message itself as a json and a callback to handle the response

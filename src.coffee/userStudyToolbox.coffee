@@ -21,6 +21,7 @@ class window.mem0r1es.UserStudyToolbox
   onMessage : (message, sender, sendResponse) ->
     switch(message.title)
         when "addLabel" then @addLabel message.content, sendResponse
+        when "setSessionPageDisplayed" then @setSessionPageDisplayed message.content, sendResponse
         when "deleteLabel" then @deleteLabel message.content, sendResponse
         when "retrieveLabels" then @retrieveLabels sendResponse
         when "saveSession" then @saveSession message.content, sendResponse
@@ -34,7 +35,12 @@ class window.mem0r1es.UserStudyToolbox
         when "processFile" then @processFile message.content, sendResponse
         when "storeIncognitoSession" then @storeIncognitoSession message.content, sendResponse
     return
-    
+  
+  setSessionPageDisplayed : (messageContent, sendResponse) =>
+    @sessionPageDisplayed = messageContent.value
+    console.log "setSessionPageDisplayed to #{messageContent.value}"
+    return
+  
   addLabel : (messageContent, sendResponse) =>
     @storageManager.store "labels", messageContent.label, () =>
       @retrieveLabels sendResponse
@@ -71,10 +77,10 @@ class window.mem0r1es.UserStudyToolbox
     return lastActivityTime
     
   checkIfNeedNewContext : () ->
-    if (new Date().getTime() - @getLastActivityTime())>10*1000*60 and not @sessionPageDisplayed
+    console.log @sessionPageDisplayed
+    if not @sessionPageDisplayed
       chrome.tabs.create {'url': chrome.extension.getURL('html/sessionInfo.html'), pinned:true}
       @sessionPageDisplayed = true
-    @updateLastActivityTime()
   
   countDumpedData : (sendResponse) ->
     if @totalCount<0

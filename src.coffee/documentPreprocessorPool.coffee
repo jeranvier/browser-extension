@@ -2,10 +2,9 @@ window.mem0r1es = {} if not window.mem0r1es?
 
 class window.mem0r1es.DocumentPreprocessorPool
   
-  constructor : (@storageManager) ->
+  constructor : (@storageManager, @idleInterval) ->
     @browserState = "active"
-    @listCleanerInterval = 1000*60*5
-    @idleInterval = 5*60 #in second...
+     = 5*60 #in second...
     @referersList = {}
     @startReferersListCleaner()
     @documentPreprocessors = {}
@@ -34,7 +33,7 @@ class window.mem0r1es.DocumentPreprocessorPool
           @browserState = newState
           if @documentPreprocessors[@activeTab.id]?
             @documentPreprocessors[@activeTab.id].setNotIdle newState is "idle"
-    ,1000*60
+    ,5*1000 #every 5 sec we check
     
   #Handles messages received from background.js
   onMessage : (message, sender, sendResponse) ->
