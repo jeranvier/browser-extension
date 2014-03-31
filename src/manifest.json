@@ -1,25 +1,39 @@
 {
-	"name": "mem0r1es",
-	"version": "0.1",
-  "options_page": "html/options.html",
-	"background": { "scripts": ["js/query.js", "js/userStudyToolbox.js", "js/storageExecutor.js","js/storageManager.js", "js/icon.js", "js/networkListener.js", "js/navigationListener.js", "js/dslProcessor.js", "js/documentPreprocessorPool.js", "js/documentPreprocessor.js", "js/background.js"] },
-	"permissions": [
-		"tabs",
-    "https://*.googleapis.com/",
-    "https://*.google.com/",
-		"webRequest",
-    "*://*/*",
-		"webNavigation",
-    "idle",
-    "geolocation",
-    "unlimitedStorage"
-	],
-	"browser_action": {
-		"name": "mem0r1es",
-		"default_popup": "html/popup.html"
-	},
-	"manifest_version": 2,
-  "sandbox": {
-     "pages": ["html/gmap.html"]
-  }
+    "background": {
+        "scripts": [
+            "js/query.js",
+            "js/userStudyToolbox.js",
+            "js/storageExecutor.js",
+            "js/storageManager.js",
+            "js/icon.js",
+            "js/networkListener.js",
+            "js/navigationListener.js",
+            "js/dslProcessor.js",
+            "js/documentPreprocessorPool.js",
+            "js/documentPreprocessor.js",
+            "js/background.js"
+        ]
+    },
+    "browser_action": {
+        "default_popup": "html/popup.html",
+        "name": "mem0r1es"
+    },
+    "manifest_version": 2,
+    "name": "mem0r1es",
+    "options_page": "html/options.html",
+    "permissions": [
+        "tabs",
+        "webRequest",
+        "<all_urls>",
+        "webNavigation",
+        "idle",
+        "geolocation",
+        "unlimitedStorage"
+    ],
+    "sandbox": {
+        "pages": [
+            "html/gmap.html"
+        ]
+    },
+    "version": "0.1"
 }
