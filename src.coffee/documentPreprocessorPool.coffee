@@ -4,7 +4,7 @@ class window.mem0r1es.DocumentPreprocessorPool
   
   constructor : (@storageManager, @idleInterval) ->
     @browserState = "active"
-     = 5*60 #in second...
+    @listCleanerInterval = 60 * 1000
     @referersList = {}
     @startReferersListCleaner()
     @documentPreprocessors = {}
@@ -76,4 +76,4 @@ class window.mem0r1es.DocumentPreprocessorPool
         if referer.timestamp > now - @listCleanerInterval
           delete @referersList[url]
       console.log "referers list cleaned"
-    , @listCleanerInterval 
+    ,@listCleanerInterval 
