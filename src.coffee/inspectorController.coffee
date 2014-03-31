@@ -42,8 +42,11 @@ class window.mem0r1es.InspectorController
           longitude = result.userStudySession.location.longitude
           result.sessionLocation = "http://maps.googleapis.com/maps/api/staticmap?center=#{latitude},#{longitude}&zoom=18&size=450x338&maptype=hybrid&markers=color:red%7Clabel:Z%7C#{latitude},#{longitude}&sensor=false"
         
-        lastFocus = parseInt(result.focusTime[result.focusTime.length-1].timestamp ,10)
-        lastActivity= parseInt(result.activityTime[result.activityTime.length-1].timestamp ,10)
+        lastActivity = parseInt(result.activityTime[result.activityTime.length-1].timestamp ,10)
+        if typeof result.focusTime[result.focusTime.length-1] isnt 'undefined'
+          lastFocus = parseInt(result.focusTime[result.focusTime.length-1].timestamp ,10)
+        else
+          lastFocus = lastActivity
         if lastFocus < lastActivity
           result.exitTimestamp = lastActivity + 10000
         else
