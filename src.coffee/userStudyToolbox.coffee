@@ -3,7 +3,6 @@ window.requestFileSystem  = window.requestFileSystem || window.webkitRequestFile
 class window.mem0r1es.UserStudyToolbox
 
   constructor : (@storageManager, @idleInterval)->
-    @sessionPageDisplayed = 0
     @browserState = "active"
     @currentCount = 0
     @totalCount = -1
@@ -25,7 +24,6 @@ class window.mem0r1es.UserStudyToolbox
   onMessage : (message, sender, sendResponse) ->
     switch(message.title)
         when "addLabel" then @addLabel message.content, sendResponse
-        when "setSessionPageDisplayed" then @setSessionPageDisplayed message.content, sendResponse
         when "deleteLabel" then @deleteLabel message.content, sendResponse
         when "retrieveLabels" then @retrieveLabels sendResponse
         when "saveSession" then @saveSession message.content, sendResponse
@@ -60,11 +58,6 @@ class window.mem0r1es.UserStudyToolbox
       if windows.length == 1
         @checkIfNeedNewContext()
       return
-
-  setSessionPageDisplayed : (messageContent, sendResponse) =>
-    @sessionPageDisplayed = messageContent.value
-    console.log "setSessionPageDisplayed to #{messageContent.value}"
-    return
 
   addLabel : (messageContent, sendResponse) =>
     @storageManager.store "labels", messageContent.label, () =>
@@ -102,10 +95,17 @@ class window.mem0r1es.UserStudyToolbox
     return lastActivityTime
 
   checkIfNeedNewContext : () ->
-    console.log "is there already a session page displayed: #{@sessionPageDisplayed}"
-    if not @sessionPageDisplayed
-      chrome.tabs.create {'url': chrome.extension.getURL('html/sessionInfo.html'), pinned:true}
-      @sessionPageDisplayed = true
+    chrome.windows.getAll {populate:true}, (windows) =>
+      thereIsAlreadyAContextPage = false
+      contextChangingPageURL = "chrome-extension://#{chrome.runtime.id}/html/sessionInfo.html"
+      for specificWindow in windows
+        for tab in specificWindow.tabs
+          if tab.url? and tab.url is contextChangingPageURL
+            thereIsAlreadyAContextPage = true
+      console.log "is there already a session page displayed: #{thereIsAlreadyAContextPage}"
+      if not thereIsAlreadyAContextPage
+        chrome.tabs.create {'url': chrome.extension.getURL('html/sessionInfo.html'), pinned:true}
+        @sessionPageDisplayed = true
 
   countDumpedData : (sendResponse) ->
     if @totalCount<0
