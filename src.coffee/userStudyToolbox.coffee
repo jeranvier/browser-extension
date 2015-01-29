@@ -7,6 +7,7 @@ class window.mem0r1es.UserStudyToolbox
     @currentCount = 0
     @totalCount = -1
     @chunkSize = 1000*1000*10
+    @stringifiedDump = ""
     @initLastDump()
     @dumpServerURL = "http://127.0.0.1:8080/"
     @checkIfNeedNewContext()
@@ -151,7 +152,6 @@ class window.mem0r1es.UserStudyToolbox
         page = results.shift()
       else
         page = null
-
       @tidyDumpUp page, results, dump, callback
     else
       query = new mem0r1es.Query().from("userStudySessions").where("userStudySessionId", "equals", parseInt(page._userStudySessionId, 10))
@@ -164,7 +164,6 @@ class window.mem0r1es.UserStudyToolbox
           page = results.shift()
         else
           page = null
-
         @tidyDumpUp page, results, dump, callback
 
   sendToServer : (dump) =>
@@ -191,7 +190,7 @@ class window.mem0r1es.UserStudyToolbox
     return
 
   writeToDisk : (dump) =>
-    @currentCount=0
+    @currentCount = 0
     window.requestFileSystem window.TEMPORARY, 1024*1024*1024, (@fs)=>
       @fs.root.getFile 'dump.json', {create: true}, (fileEntry)=>
 
@@ -200,9 +199,13 @@ class window.mem0r1es.UserStudyToolbox
           @fs.root.getFile 'dump.json', {create: true}, (fileEntry)=>
             console.log fileEntry.toURL()
             @DumpURL = fileEntry.toURL()
-            stringifiedDump = JSON.stringify(dump)
-            @totalCount = stringifiedDump.length/@chunkSize
-            @writeNextChunk stringifiedDump
+            console.log "Dump size is : #{dump.length}"
+            @stringifiedDump = JSON.stringify(dump)
+            console.log "stringifiedDump size is : #{@stringifiedDump.length}"
+            @totalCount = Math.ceil(@stringifiedDump.length/@chunkSize)
+            console.log "The total count : #{@totalCount}"
+            console.log "The current count : #{@currentCount}"
+            @writeNextChunk()
           , (e) ->
             console.log "Cannot write file to disk"
           return
@@ -214,22 +217,25 @@ class window.mem0r1es.UserStudyToolbox
   getDumpURL : (sendResponse) =>
     sendResponse @DumpURL
 
-  writeNextChunk : (remainingDump) =>
-    if remainingDump.length is 0
+  writeNextChunk : () =>
+    console.log "The current count 2 : #{@currentCount}"
+    if @currentCount is @totalCount
       return
-
-    if remainingDump.length > @chunkSize
-      chunk = remainingDump.substring(0,@chunkSize)
-      remainingDump = remainingDump.substring(@chunkSize)
+    console.log "The current count 3: #{@currentCount}"
+    if @currentCount < @totalCount-1
+      chunk = @stringifiedDump.substring(@currentCount*@chunkSize,(@currentCount+1)*@chunkSize)
     else
-      chunk = remainingDump
-      remainingDump = ""
+      console.log "CurrentCount 2: #{@currentCount}"
+      chunk = @stringifiedDump.substring(@currentCount*@chunkSize,@stringifiedDump.length)
+      console.log "CurrentCount 3: #{@currentCount}"
+      #console.log "CurrentCount 4: #{chunk}"
     @fs.root.getFile 'dump.json', {create: false}, (fileEntry)=>
+            console.log "Chunk 1 size is: #{chunk.length}"
             fileEntry.createWriter (fileWriter)=>
-
+              console.log "Chunk 2 size is: #{chunk.length}"
               fileWriter.onwriteend = (e) =>
                 @currentCount++
-                @writeNextChunk remainingDump
+                @writeNextChunk()
 
               fileWriter.onerror  = (e) =>
                 console.log e
@@ -283,7 +289,6 @@ class window.mem0r1es.UserStudyToolbox
           reader.onerror = (event) =>
             console.error event.target.error.code
             sendResponse "Cannot read file"
-
           reader.readAsArrayBuffer(file)
         , (e) ->
           sendResponse "Cannot read file"
