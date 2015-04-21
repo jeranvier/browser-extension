@@ -4,6 +4,7 @@ class window.mem0r1es.UserStudyToolbox
 
   constructor : (@storageManager, @idleInterval)->
     @browserState = "active"
+    @lastActive = 0
     @currentCount = 0
     @totalCount = -1
     @chunkSize = 1000*1000*10
@@ -44,10 +45,14 @@ class window.mem0r1es.UserStudyToolbox
       chrome.idle.queryState @idleInterval, (newState) =>
         if @browserState isnt newState
           console.log "User state switched from #{@browserState} to #{newState}"
-          @browserState = newState
-          if @browserState is "active" #need for a new session picture
-            @onMessage {title:"newActivity"}, @, () ->
-              console.log response
+          #console.log (Date.now()-@lastActive)
+          if newState is "active"
+            if (@browserState is "locked" and (Date.now()-@lastActive) > 1000*@idleInterval ) or (@browserState is "idle")#need for a new session picture
+              @onMessage {title:"newActivity"}, @, () ->
+                console.log response
+        if newState is "active"
+          @lastActive = Date.now()
+        @browserState = newState
     ,5*1000 #every 5 sec we check
 
   #check, when a new window is added, if this is the first window.
